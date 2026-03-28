@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1D9E75">
+<title>Comomeer 2026</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ac:#1D9E75;--ac-l:#E1F5EE;--ac-d:#0F6E56;
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede9;
+  --tx:#1a1a1a;--tx2:#6b6b6b;--tx3:#999;
+  --brd:rgba(0,0,0,0.1);--brd2:rgba(0,0,0,0.18);
+  --radius:10px;--radius-lg:14px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'SF Mono',SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--bg2:#252525;--bg3:#2f2f2f;
+    --tx:#e8e8e8;--tx2:#999;--tx3:#666;
+    --brd:rgba(255,255,255,0.1);--brd2:rgba(255,255,255,0.18);
+    --ac-l:#0a3d2e;--ac-d:#5DCAA5;
+  }
+}
+body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+.app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;padding-bottom:2rem}
+
+/* Header */
+.hdr{text-align:center;padding:1.5rem 0 0.75rem}
+.hdr h1{font-size:20px;font-weight:600;letter-spacing:-0.4px}
+.hdr p{font-size:12px;color:var(--tx2);margin-top:3px}
+.bar{display:inline-block;width:32px;height:3px;background:var(--ac);border-radius:2px;margin-bottom:8px}
+
+/* Add button strip */
+.add-strip{margin:0 0.75rem 0.75rem;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-lg);background:var(--ac);cursor:pointer;transition:background .12s;-webkit-user-select:none;position:relative;overflow:hidden}
+.add-strip:active{background:var(--ac-d)}
+.add-strip .plus{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:600;flex-shrink:0}
+.add-strip .atxt{color:#fff;font-size:15px;font-weight:600}
+.add-strip .asub{color:rgba(255,255,255,0.7);font-size:11px;margin-top:1px}
+
+/* Navigation */
+.nav{display:flex;padding:0 0.75rem;gap:2px;margin-bottom:0.75rem}
+.nav-btn{flex:1;text-align:center;padding:9px 0;font-size:12px;font-weight:400;color:var(--tx2);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all .15s;font-family:var(--font)}
+.nav-btn.on{color:var(--ac-d);font-weight:600;border-bottom-color:var(--ac)}
+
+/* Panels */
+.pnl{display:none;padding:0 0.75rem}
+.pnl.on{display:block}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:0.75rem}
+.stat{background:var(--bg2);border-radius:var(--radius);padding:10px 12px}
+.stat .sl{font-size:10px;color:var(--tx2);letter-spacing:0.5px;text-transform:uppercase}
+.stat .sv{font-size:17px;font-weight:600;margin-top:2px}
+
+/* Category filter */
+.cats{display:flex;gap:5px;margin-bottom:0.75rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
+.cats::-webkit-scrollbar{display:none}
+.cp{padding:5px 11px;border-radius:16px;font-size:11px;border:1px solid var(--brd);cursor:pointer;white-space:nowrap;background:var(--bg);color:var(--tx2);transition:all .12s;font-weight:500}
+.cp.on{background:var(--ac-l);border-color:var(--ac);color:var(--ac-d);font-weight:600}
+
+/* Expense list */
+.elist{display:flex;flex-direction:column;gap:5px}
+.ei{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius);border:1px solid var(--brd);cursor:pointer;transition:background .12s;-webkit-user-select:none}
+.ei:active{background:var(--bg2)}
+.eicon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.einfo{flex:1;min-width:0}
+.einfo .et{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.einfo .em{font-size:11px;color:var(--tx2);margin-top:1px}
+.ea{text-align:right}
+.ea .ev{font-size:15px;font-weight:600}
+.ea .ep{font-size:10px;color:var(--tx2);margin-top:1px}
+.rb{display:inline-flex;align-items:center;font-size:10px;color:var(--ac-d);background:var(--ac-l);padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:500}
+
+/* Modal / bottom sheet */
+.mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.mo.open{display:flex}
+.ms{background:var(--bg);border-radius:18px 18px 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ms h2{font-size:16px;font-weight:600;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.ms h2 span{font-size:13px;color:var(--tx2);cursor:pointer;font-weight:400}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;color:var(--tx2);margin-bottom:4px;font-weight:500}
+.fg input,.fg select{width:100%;font-size:15px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd2);background:var(--bg);color:var(--tx);font-family:var(--font);outline:none;transition:border .15s}
+.fg input:focus,.fg select:focus{border-color:var(--ac)}
+.fg input[type=file]{font-size:12px;padding:8px 0;border:none}
+.fg input[type=number]{font-variant-numeric:tabular-nums}
+
+/* Category grid in modal */
+.qcat{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.qc{padding:10px 4px;border-radius:var(--radius);border:1.5px solid var(--brd);cursor:pointer;text-align:center;font-size:11px;transition:all .12s;background:var(--bg);color:var(--tx);font-weight:500}
+.qc.on{border-width:2.5px}
+.qc i{font-size:18px;display:block;margin-bottom:3px;font-style:normal}
+
+/* Split chips */
+.splitrow{display:flex;flex-wrap:wrap;gap:5px}
+.sp{padding:6px 12px;border-radius:16px;font-size:12px;border:1px solid var(--brd);cursor:pointer;transition:all .1s;background:var(--bg);color:var(--tx);font-weight:400}
+.sp.on{background:var(--ac-l);border-color:var(--ac);color:var(--ac-d);font-weight:500}
+.allbtn{font-size:10px;color:var(--ac-d);cursor:pointer;margin-left:6px;font-weight:600}
+
+/* Modal actions */
+.macts{display:flex;gap:8px;margin-top:1rem}
+.macts button{flex:1;padding:12px;border-radius:var(--radius);font-size:14px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .1s}
+.mbtn-c{background:var(--bg2);border:1px solid var(--brd);color:var(--tx)}
+.mbtn-s{background:var(--ac);border:none;color:#fff}
+.mbtn-s:active{background:var(--ac-d)}
+.mbtn-del{flex:0 0 auto!important;padding:12px 18px!important;color:#E24B4A!important;border-color:#E24B4A!important;background:transparent!important}
+
+/* Balance items */
+.bi{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:5px}
+.bav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.bn{font-size:13px;font-weight:500;min-width:55px}
+.bbar{flex:1;height:6px;background:var(--bg2);border-radius:3px}
+.bbf{height:100%;border-radius:3px;transition:width .35s}
+.bv{font-size:13px;font-weight:600;min-width:70px;text-align:right}
+.pos{color:#1D9E75}.neg{color:#E24B4A}
+
+/* Settlement items */
+.si{display:flex;align-items:center;gap:6px;padding:11px 12px;border-radius:var(--radius);background:var(--bg2);margin-bottom:5px;font-size:12px;font-weight:500}
+.sarr{color:var(--ac);font-weight:600;font-size:16px}
+.samt{margin-left:auto;font-weight:600;font-size:14px}
+
+/* IBAN */
+.iban-section{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--brd)}
+.iban-section h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.iban-row{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:5px;font-size:12px}
+.iban-row .ibname{font-weight:600;min-width:55px;font-size:12px}
+.iban-row .ibnum{flex:1;font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ibcopy{padding:5px 10px;border-radius:8px;background:var(--ac-l);color:var(--ac-d);border:none;font-size:11px;cursor:pointer;white-space:nowrap;font-weight:600;font-family:var(--font);transition:all .1s}
+.ibcopy:active{background:var(--ac);color:#fff}
+
+/* Toast */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);background:var(--ac-d);color:#fff;padding:8px 20px;border-radius:24px;font-size:13px;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);pointer-events:none;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Detail overlay */
+.dtl{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:50;display:none;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dtl.open{display:block}
+.dbk{font-size:13px;color:var(--ac-d);cursor:pointer;margin-bottom:1rem;display:inline-flex;align-items:center;gap:4px;font-weight:500}
+.dh h3{font-size:18px;font-weight:600}
+.dr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd);font-size:13px}
+.dr .dl{color:var(--tx2)}
+
+/* Empty state */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--tx2)}
+.empty p{font-size:13px;line-height:1.5}
+
+/* People list */
+.ppl-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:5px}
+.ppl-card .pinfo{flex:1;min-width:0}
+.ppl-card .pname{font-size:13px;font-weight:500}
+.ppl-card .piban{font-size:11px;color:var(--tx2);font-family:var(--mono)}
+.ppl-edit{padding:5px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg);font-size:11px;cursor:pointer;color:var(--tx);font-family:var(--font);font-weight:500}
+.ppl-add{width:100%;padding:12px;border-radius:var(--radius);border:1.5px dashed var(--brd2);background:none;font-size:12px;cursor:pointer;color:var(--tx2);font-family:var(--font);font-weight:500;margin-top:0.5rem}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="hdr">
+    <div class="bar"></div>
+    <h1>Comomeer 2026</h1>
+    <p>Split eerlijk met je maten</p>
+  </div>
+
+  <div class="add-strip" id="add-strip" role="button" tabindex="0">
+    <div class="plus">+</div>
+    <div>
+      <div class="atxt">Nieuwe uitgave</div>
+      <div class="asub">Tik om toe te voegen</div>
+    </div>
+  </div>
+
+  <div class="nav" id="nav"></div>
+
+  <div class="pnl on" id="p-exp">
+    <div class="stats" id="stats"></div>
+    <div class="cats" id="cats"></div>
+    <div class="elist" id="elist"></div>
+  </div>
+
+  <div class="pnl" id="p-bal">
+    <div id="blist"></div>
+  </div>
+
+  <div class="pnl" id="p-set">
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Minimale transacties om te vereffenen</p>
+    <div id="slist"></div>
+    <div class="iban-section">
+      <h3>Rekeningnummers</h3>
+      <div id="iban-list"></div>
+    </div>
+  </div>
+
+  <div class="pnl" id="p-ppl">
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Beheer je groep en rekeningnummers</p>
+    <div id="ppl-list"></div>
+    <button class="ppl-add" id="ppl-add">+ Persoon toevoegen</button>
+  </div>
+</div>
+
+<div class="mo" id="mo">
+  <div class="ms" id="ms"></div>
+</div>
+
+<div class="dtl" id="dtl"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Data ──
+const CATS = {
+  food:       { l:'Eten',        i:'\u{1F35D}', c:'#D85A30', bg:'#FAECE7' },
+  drinks:     { l:'Drinken',     i:'\u{1F377}', c:'#534AB7', bg:'#EEEDFE' },
+  transport:  { l:'Transport',   i:'\u{1F697}', c:'#185FA5', bg:'#E6F1FB' },
+  accom:      { l:'Verblijf',    i:'\u{1F3E0}', c:'#D4537E', bg:'#FBEAF0' },
+  activities: { l:'Activiteiten',i:'\u26F5',     c:'#639922', bg:'#EAF3DE' },
+  other:      { l:'Overig',      i:'\u{1F4E6}', c:'#888780', bg:'#F1EFE8' }
+};
+const PCOL = ['#1D9E75','#534AB7','#D85A30','#185FA5','#D4537E','#639922','#BA7517','#E24B4A','#888780','#993556'];
+
+const STORAGE_KEY = 'como2026';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, expenses, nid }));
+  } catch(e) {}
+}
+
+const saved = loadData();
+let people = saved ? saved.people : [
+  {n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'Maat 4',iban:''},
+  {n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}
+];
+let expenses = saved ? saved.expenses : [
+  {id:1,d:'Autobahn tanken',a:95,cat:'transport',payer:'Maat 2',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-10'},
+  {id:2,d:'AirBnB villa',a:1680,cat:'accom',payer:'Cédric',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-10'},
+  {id:3,d:'Aperol bij zonsondergang',a:72,cat:'drinks',payer:'Maat 5',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-11'},
+  {id:4,d:'Pizza Bellagio',a:64,cat:'food',payer:'Maat 3',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-11'},
+  {id:5,d:'Bootje huren',a:220,cat:'activities',payer:'Cédric',split:['Cédric','Maat 2','Maat 3','Maat 4'],rcpt:null,dt:'2026-07-12'},
+  {id:6,d:'Supermarkt BBQ',a:118,cat:'food',payer:'Maat 4',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-12'}
+];
+let nid = saved ? saved.nid : 7;
+let filt = 'all', editId = null, curTab = 'exp';
+
+// ── Helpers ──
+function ini(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
+function pcol(n) { const i = people.findIndex(p => p.n === n); return PCOL[(i >= 0 ? i : 0) % PCOL.length]; }
+function names() { return people.map(p => p.n); }
+
+function toast(t) {
+  const e = document.getElementById('toast');
+  e.textContent = t;
+  e.classList.add('show');
+  setTimeout(() => e.classList.remove('show'), 1800);
+}
+
+// ── Render ──
+function renderNav() {
+  const tabs = [['exp','Uitgaven'],['bal','Balans'],['set','Afrekenen'],['ppl','Groep']];
+  document.getElementById('nav').innerHTML = tabs.map(([k,l]) =>
+    `<button class="nav-btn${curTab===k?' on':''}" data-t="${k}">${l}</button>`
+  ).join('');
+  document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => { curTab = b.dataset.t; render(); });
+}
+
+function render() {
+  renderNav();
+  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
+  document.getElementById('p-' + curTab).classList.add('on');
+  if (curTab === 'exp') { renderStats(); renderCats(); renderList(); }
+  else if (curTab === 'bal') renderBal();
+  else if (curTab === 'set') { renderSettle(); renderIbans(); }
+  else if (curTab === 'ppl') renderPeople();
+}
+
+function renderStats() {
+  const tot = expenses.reduce((s,e) => s + e.a, 0);
+  const avg = people.length ? tot / people.length : 0;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat"><div class="sl">Totaal</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div>` +
+    `<div class="stat"><div class="sl">Uitgaven</div><div class="sv">${expenses.length}</div></div>` +
+    `<div class="stat"><div class="sl">P.p.</div><div class="sv">\u20AC${Math.round(avg).toLocaleString('nl-BE')}</div></div>`;
+}
+
+function renderCats() {
+  let h = `<div class="cp${filt==='all'?' on':''}" data-c="all">Alles</div>`;
+  Object.entries(CATS).forEach(([k,v]) => {
+    if (expenses.some(e => e.cat === k))
+      h += `<div class="cp${filt===k?' on':''}" data-c="${k}">${v.i} ${v.l}</div>`;
+  });
+  const el = document.getElementById('cats');
+  el.innerHTML = h;
+  el.querySelectorAll('.cp').forEach(c => c.onclick = () => { filt = c.dataset.c; render(); });
+}
+
+function renderList() {
+  const f = filt === 'all' ? expenses : expenses.filter(e => e.cat === filt);
+  const el = document.getElementById('elist');
+  if (!f.length) {
+    el.innerHTML = `<div class="empty"><p>Nog geen uitgaven.<br>Tik hierboven om te starten!</p></div>`;
+    return;
+  }
+  el.innerHTML = [...f].reverse().map(e => {
+    const c = CATS[e.cat];
+    const rb = e.rcpt ? `<span class="rb">\u{1F4CE} bon</span>` : '';
+    return `<div class="ei" data-id="${e.id}">
+      <div class="eicon" style="background:${c.bg};color:${c.c}">${c.i}</div>
+      <div class="einfo"><div class="et">${e.d}${rb}</div><div class="em">${e.dt} · ${e.split.length}p</div></div>
+      <div class="ea"><div class="ev">\u20AC${e.a.toFixed(2)}</div><div class="ep">${e.payer}</div></div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.ei').forEach(i => i.onclick = () => showDtl(+i.dataset.id));
+}
+
+function renderBal() {
+  const bal = {};
+  names().forEach(n => bal[n] = 0);
+  expenses.forEach(e => {
+    bal[e.payer] = (bal[e.payer] || 0) + e.a;
+    const sh = e.a / e.split.length;
+    e.split.forEach(p => { if (bal[p] !== undefined) bal[p] -= sh; });
+  });
+  const mx = Math.max(...Object.values(bal).map(Math.abs), 1);
+  document.getElementById('blist').innerHTML = names().map(n => {
+    const v = bal[n] || 0;
+    const cls = v >= 0 ? 'pos' : 'neg';
+    const pct = Math.abs(v) / mx * 100;
+    const bc = v >= 0 ? '#1D9E75' : '#E24B4A';
+    return `<div class="bi">
+      <div class="bav" style="background:${pcol(n)}20;color:${pcol(n)}">${ini(n)}</div>
+      <div class="bn">${n}</div>
+      <div class="bbar"><div class="bbf" style="width:${pct}%;background:${bc}"></div></div>
+      <div class="bv ${cls}">${v>=0?'+':''}\u20AC${Math.abs(v).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSettle() {
+  const bal = {};
+  names().forEach(n => bal[n] = 0);
+  expenses.forEach(e => {
+    bal[e.payer] = (bal[e.payer] || 0) + e.a;
+    const sh = e.a / e.split.length;
+    e.split.forEach(p => { if (bal[p] !== undefined) bal[p] -= sh; });
+  });
+  const dbt = names().filter(n => bal[n] < -0.01).map(n => ({n, a: bal[n]})).sort((a,b) => a.a - b.a);
+  const crd = names().filter(n => bal[n] > 0.01).map(n => ({n, a: bal[n]})).sort((a,b) => b.a - a.a);
+  const stl = [];
+  let di = 0, ci = 0;
+  while (di < dbt.length && ci < crd.length) {
+    const am = Math.min(-dbt[di].a, crd[ci].a);
+    if (am > 0.01) stl.push({ f: dbt[di].n, t: crd[ci].n, a: am });
+    dbt[di].a += am; crd[ci].a -= am;
+    if (Math.abs(dbt[di].a) < 0.01) di++;
+    if (Math.abs(crd[ci].a) < 0.01) ci++;
+  }
+  const el = document.getElementById('slist');
+  if (!stl.length) { el.innerHTML = `<div class="empty"><p>Iedereen staat quitte! 🎉</p></div>`; return; }
+  el.innerHTML = stl.map(s => {
+    const toP = people.find(p => p.n === s.t);
+    const hasIban = toP && toP.iban;
+    const ibanBtn = hasIban
+      ? `<button class="ibcopy" onclick="event.stopPropagation();copyIban('${s.t.replace(/'/g,"\\'")}')">IBAN</button>`
+      : '';
+    return `<div class="si">
+      <div class="bav" style="background:${pcol(s.f)}20;color:${pcol(s.f)};width:24px;height:24px;font-size:9px">${ini(s.f)}</div>
+      <span>${s.f}</span><span class="sarr">\u2192</span><span>${s.t}</span>
+      <div class="bav" style="background:${pcol(s.t)}20;color:${pcol(s.t)};width:24px;height:24px;font-size:9px">${ini(s.t)}</div>
+      <span class="samt">\u20AC${s.a.toFixed(2)}</span>${ibanBtn}
+    </div>`;
+  }).join('');
+}
+
+function renderIbans() {
+  const el = document.getElementById('iban-list');
+  const withIban = people.filter(p => p.iban);
+  if (!withIban.length) {
+    el.innerHTML = `<p style="font-size:11px;color:var(--tx2)">Nog geen IBAN's. Voeg ze toe bij "Groep".</p>`;
+    return;
+  }
+  el.innerHTML = withIban.map(p =>
+    `<div class="iban-row">
+      <div class="bav" style="background:${pcol(p.n)}20;color:${pcol(p.n)};width:24px;height:24px;font-size:9px">${ini(p.n)}</div>
+      <span class="ibname">${p.n}</span>
+      <span class="ibnum">${p.iban}</span>
+      <button class="ibcopy" onclick="copyIban('${p.n.replace(/'/g,"\\'")}')">Kopieer</button>
+    </div>`
+  ).join('');
+}
+
+function renderPeople() {
+  const el = document.getElementById('ppl-list');
+  el.innerHTML = people.map((p, i) =>
+    `<div class="ppl-card">
+      <div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]};width:30px;height:30px;font-size:11px">${ini(p.n)}</div>
+      <div class="pinfo"><div class="pname">${p.n}</div><div class="piban">${p.iban || 'Geen IBAN'}</div></div>
+      <button class="ppl-edit" onclick="editPerson(${i})">Bewerk</button>
+    </div>`
+  ).join('');
+}
+
+// ── IBAN copy ──
+function copyIban(name) {
+  const p = people.find(x => x.n === name);
+  if (!p || !p.iban) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(p.iban).then(() => toast('IBAN gekopieerd!')).catch(fallbackCopy);
+  } else { fallbackCopy(); }
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = p.iban; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); toast('IBAN gekopieerd!');
+  }
+}
+
+// ── Modal helpers ──
+function closeMo() { document.getElementById('mo').classList.remove('open'); editId = null; }
+document.getElementById('mo').addEventListener('click', function(e) { if (e.target === this) closeMo(); });
+
+// ── People management ──
+function editPerson(idx) {
+  const p = people[idx];
+  const ms = document.getElementById('ms');
+  ms.innerHTML = `<h2>Persoon bewerken<span onclick="closeMo()">Annuleer</span></h2>
+    <div class="fg"><label>Naam</label><input type="text" id="ep-name" value="${p.n}"></div>
+    <div class="fg"><label>IBAN / rekeningnummer</label><input type="text" id="ep-iban" value="${p.iban}" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
+    <div class="macts">
+      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
+      <button class="mbtn-s" onclick="savePerson(${idx})">Opslaan</button>
+    </div>`;
+  document.getElementById('mo').classList.add('open');
+  document.getElementById('ep-name').focus();
+}
+
+function savePerson(idx) {
+  const nn = document.getElementById('ep-name').value.trim();
+  const ni = document.getElementById('ep-iban').value.trim().toUpperCase();
+  if (!nn) return;
+  const old = people[idx].n;
+  people[idx].n = nn; people[idx].iban = ni;
+  expenses.forEach(e => {
+    if (e.payer === old) e.payer = nn;
+    e.split = e.split.map(s => s === old ? nn : s);
+  });
+  closeMo(); saveData(); render(); toast('Opgeslagen!');
+}
+
+function addPerson() {
+  const ms = document.getElementById('ms');
+  ms.innerHTML = `<h2>Persoon toevoegen<span onclick="closeMo()">Annuleer</span></h2>
+    <div class="fg"><label>Naam</label><input type="text" id="ep-name" placeholder="Naam"></div>
+    <div class="fg"><label>IBAN / rekeningnummer</label><input type="text" id="ep-iban" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
+    <div class="macts">
+      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
+      <button class="mbtn-s" onclick="saveNewPerson()">Toevoegen</button>
+    </div>`;
+  document.getElementById('mo').classList.add('open');
+  document.getElementById('ep-name').focus();
+}
+
+function saveNewPerson() {
+  const nn = document.getElementById('ep-name').value.trim();
+  const ni = document.getElementById('ep-iban').value.trim().toUpperCase();
+  if (!nn) return;
+  people.push({ n: nn, iban: ni });
+  closeMo(); saveData(); render(); toast(nn + ' toegevoegd!');
+}
+
+document.getElementById('ppl-add').onclick = addPerson;
+
+// ── Add / Edit expense ──
+function openAdd(eid) {
+  const mo = document.getElementById('mo');
+  const ms = document.getElementById('ms');
+  const isEdit = !!eid;
+  const ex = isEdit ? expenses.find(e => e.id === eid) : null;
+  editId = eid || null;
+
+  const catGrid = Object.entries(CATS).map(([k,v]) => {
+    const on = ex ? ex.cat === k : k === 'food';
+    const bc = on ? v.bg : 'var(--bg)';
+    const bor = on ? `2.5px solid ${v.c}` : '1.5px solid var(--brd)';
+    return `<div class="qc${on?' on':''}" data-cat="${k}" style="background:${bc};border:${bor}"><i>${v.i}</i>${v.l}</div>`;
+  }).join('');
+
+  const payerOpts = names().map(n =>
+    `<option value="${n}"${ex && ex.payer === n ? ' selected' : ''}>${n}</option>`
+  ).join('');
+
+  const splitChips = names().map(n => {
+    const on = ex ? ex.split.includes(n) : true;
+    return `<div class="sp${on?' on':''}" data-p="${n}">${n}</div>`;
+  }).join('');
+
+  ms.innerHTML = `<h2>${isEdit ? 'Bewerken' : 'Nieuwe uitgave'}<span onclick="closeMo()">Annuleer</span></h2>
+    <div class="fg"><label>Wat?</label><input type="text" id="mi-d" placeholder="bv. Diner aan het meer" value="${ex ? ex.d : ''}"></div>
+    <div class="fg"><label>Bedrag (\u20AC)</label><input type="number" id="mi-a" placeholder="0.00" step="0.01" min="0" value="${ex ? ex.a : ''}" inputmode="decimal"></div>
+    <div class="fg"><label>Categorie</label><div class="qcat" id="mi-cat">${catGrid}</div></div>
+    <div class="fg"><label>Betaald door</label><select id="mi-p">${payerOpts}</select></div>
+    <div class="fg"><label>Delen met <span class="allbtn" id="tog-all">alles aan/uit</span></label><div class="splitrow" id="mi-sp">${splitChips}</div></div>
+    <div class="fg"><label>Bon / foto (optioneel)</label><input type="file" id="mi-r" accept="image/*" capture="environment"></div>
+    <div class="macts">
+      ${isEdit ? `<button class="mbtn-c mbtn-del" onclick="delExp(${eid})">Wis</button>` : ''}
+      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
+      <button class="mbtn-s" onclick="saveExp()">Opslaan</button>
+    </div>`;
+
+  // Category tap
+  ms.querySelectorAll('.qc').forEach(c => c.onclick = () => {
+    ms.querySelectorAll('.qc').forEach(x => {
+      x.classList.remove('on');
+      x.style.background = 'var(--bg)';
+      x.style.border = '1.5px solid var(--brd)';
+    });
+    c.classList.add('on');
+    const ct = CATS[c.dataset.cat];
+    c.style.background = ct.bg;
+    c.style.border = `2.5px solid ${ct.c}`;
+  });
+
+  // Split chips
+  ms.querySelectorAll('.sp').forEach(c => c.onclick = () => c.classList.toggle('on'));
+  document.getElementById('tog-all').onclick = () => {
+    const all = ms.querySelectorAll('.sp');
+    const allOn = [...all].every(c => c.classList.contains('on'));
+    all.forEach(c => allOn ? c.classList.remove('on') : c.classList.add('on'));
+  };
+
+  mo.classList.add('open');
+  setTimeout(() => document.getElementById('mi-d').focus(), 150);
+}
+
+function saveExp() {
+  const d = document.getElementById('mi-d').value.trim();
+  const a = parseFloat(document.getElementById('mi-a').value);
+  if (!d || isNaN(a) || a <= 0) return;
+  const catEl = document.querySelector('#mi-cat .qc.on');
+  const cat = catEl ? catEl.dataset.cat : 'other';
+  const payer = document.getElementById('mi-p').value;
+  const split = [...document.querySelectorAll('#mi-sp .sp.on')].map(c => c.dataset.p);
+  if (!split.length) return;
+  const fileIn = document.getElementById('mi-r');
+
+  const finish = (rcpt) => {
+    if (editId) {
+      const e = expenses.find(x => x.id === editId);
+      e.d = d; e.a = a; e.cat = cat; e.payer = payer; e.split = split;
+      if (rcpt) e.rcpt = rcpt;
+    } else {
+      const dt = new Date().toISOString().slice(0, 10);
+      expenses.push({ id: nid++, d, a, cat, payer, split, rcpt, dt });
+    }
+    closeMo(); saveData(); render();
+    toast(editId ? 'Bijgewerkt!' : 'Toegevoegd!');
+  };
+
+  if (fileIn.files && fileIn.files[0]) {
+    const r = new FileReader();
+    r.onload = ev => finish(ev.target.result);
+    r.readAsDataURL(fileIn.files[0]);
+  } else {
+    finish(null);
+  }
+}
+
+function delExp(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  closeMo();
+  document.getElementById('dtl').classList.remove('open');
+  saveData(); render(); toast('Verwijderd');
+}
+
+// ── Detail view ──
+function showDtl(id) {
+  const e = expenses.find(x => x.id === id);
+  if (!e) return;
+  const c = CATS[e.cat];
+  const sh = (e.a / e.split.length).toFixed(2);
+  let rcptH = e.rcpt
+    ? `<div style="margin-top:1rem;border-radius:var(--radius);overflow:hidden"><img src="${e.rcpt}" style="width:100%;display:block" alt="bon"></div>`
+    : '';
+
+  const dtl = document.getElementById('dtl');
+  dtl.innerHTML = `
+    <div class="dbk" onclick="document.getElementById('dtl').classList.remove('open')">\u2190 Terug</div>
+    <div class="dh">
+      <div class="eicon" style="background:${c.bg};color:${c.c};width:40px;height:40px;font-size:18px;margin-bottom:8px;border-radius:10px;display:flex;align-items:center;justify-content:center">${c.i}</div>
+      <h3>${e.d}</h3>
+      <p style="font-size:12px;color:var(--tx2);margin-top:3px">${c.l} · ${e.dt}</p>
+    </div>
+    <div class="dr"><span class="dl">Bedrag</span><span style="font-weight:600">\u20AC${e.a.toFixed(2)}</span></div>
+    <div class="dr"><span class="dl">Betaald door</span><span>${e.payer}</span></div>
+    <div class="dr"><span class="dl">Gedeeld met</span><span>${e.split.length} personen</span></div>
+    <div class="dr"><span class="dl">Per persoon</span><span>\u20AC${sh}</span></div>
+    <div style="margin-top:10px">
+      <p style="font-size:11px;color:var(--tx2);margin-bottom:6px">Deelnemers</p>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${e.split.map(p => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:4px 10px;border-radius:14px;background:var(--bg2)">
+          <span style="width:18px;height:18px;border-radius:50%;background:${pcol(p)}20;color:${pcol(p)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:600">${ini(p)}</span>${p}
+        </span>`).join('')}
+      </div>
+    </div>
+    ${rcptH}
+    <div style="display:flex;gap:8px;margin-top:1.5rem">
+      <button style="flex:1;padding:12px;border-radius:var(--radius);background:none;border:1.5px solid #E24B4A;color:#E24B4A;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="delExp(${e.id})">Verwijderen</button>
+      <button style="flex:1;padding:12px;border-radius:var(--radius);background:var(--ac);border:none;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="document.getElementById('dtl').classList.remove('open');openAdd(${e.id})">Bewerken</button>
+    </div>`;
+  dtl.classList.add('open');
+}
+
+// ── Init ──
+document.getElementById('add-strip').onclick = () => openAdd();
+render();
+</script>
+</body>
+</html>
