@@ -32,20 +32,21 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;padding-bottom:2rem}
 
 /* Header */
-.hdr{text-align:center;padding:1.5rem 0 0.75rem}
-.hdr h1{font-size:20px;font-weight:600;letter-spacing:-0.4px}
-.hdr p{font-size:12px;color:var(--tx2);margin-top:3px}
-.bar{display:inline-block;width:32px;height:3px;background:var(--ac);border-radius:2px;margin-bottom:8px}
+.hdr{display:flex;align-items:center;gap:10px;padding:0.75rem 0.75rem 0.5rem}
+.hdr .bar{width:3px;height:24px;background:var(--ac);border-radius:2px;flex-shrink:0}
+.hdr h1{font-size:17px;font-weight:600;letter-spacing:-0.4px}
+.hdr p{font-size:11px;color:var(--tx2)}
+.hdr-text{display:flex;flex-direction:column}
 
 /* Add button strip */
-.add-strip{margin:0 0.75rem 0.75rem;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-lg);background:var(--ac);cursor:pointer;transition:background .12s;-webkit-user-select:none;position:relative;overflow:hidden}
+.add-strip{margin:0 0.75rem 0.5rem;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-lg);background:var(--ac);cursor:pointer;transition:background .12s;-webkit-user-select:none;position:relative;overflow:hidden}
 .add-strip:active{background:var(--ac-d)}
 .add-strip .plus{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:600;flex-shrink:0}
 .add-strip .atxt{color:#fff;font-size:15px;font-weight:600}
 .add-strip .asub{color:rgba(255,255,255,0.7);font-size:11px;margin-top:1px}
 
 /* Navigation */
-.nav{display:flex;padding:0 0.75rem;gap:2px;margin-bottom:0.75rem}
+.nav{display:flex;padding:0 0.75rem;gap:2px;margin-bottom:0.5rem}
 .nav-btn{flex:1;text-align:center;padding:9px 0;font-size:12px;font-weight:400;color:var(--tx2);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all .15s;font-family:var(--font)}
 .nav-btn.on{color:var(--ac-d);font-weight:600;border-bottom-color:var(--ac)}
 
@@ -96,7 +97,7 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 /* Category grid in modal */
 .qcat{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
 .qc{padding:6px 2px;border-radius:var(--radius);border:1.5px solid var(--brd);cursor:pointer;text-align:center;font-size:9px;transition:all .12s;background:var(--bg);color:var(--tx);font-weight:500}
-.qc.on{border-width:2.5px}
+.qc.on{background:var(--ac)!important;border-color:var(--ac)!important;border-width:2px!important;color:#fff}
 .qc i{font-size:16px;display:block;margin-bottom:1px;font-style:normal}
 
 /* Split chips */
@@ -177,8 +178,7 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 <div class="app" id="app">
   <div class="hdr">
     <div class="bar"></div>
-    <h1>Conto</h1>
-    <p>Gun me barkie niffau</p>
+    <div class="hdr-text"><h1>Conto</h1><p>Gun me barkie niffau</p></div>
   </div>
 
   <div class="add-strip" id="add-strip" role="button" tabindex="0">
@@ -321,7 +321,7 @@ function toast(t) {
 
 // ── Render ──
 function renderNav() {
-  const tabs = [['exp','Uitgaven'],['bal','Wie is blut'],['set','Time to pay bitch'],['ppl','De squad']];
+  const tabs = [['exp','Uitgaven'],['bal','Wie is blut'],['set','Time to pay'],['ppl','De squad']];
   document.getElementById('nav').innerHTML = tabs.map(([k,l]) =>
     `<button class="nav-btn${curTab===k?' on':''}" data-t="${k}">${l}</button>`
   ).join('');
@@ -578,9 +578,7 @@ function renderStep1() {
 
   const catGrid = Object.entries(CATS).map(([k,v]) => {
     const on = s.cat === k;
-    const bc = on ? v.bg : 'var(--bg)';
-    const bor = on ? `2.5px solid ${v.c}` : '1.5px solid var(--brd)';
-    return `<div class="qc${on?' on':''}" data-cat="${k}" style="background:${bc};border:${bor}"><i>${v.i}</i>${v.l}</div>`;
+    return `<div class="qc${on?' on':''}" data-cat="${k}"><i>${v.i}</i>${v.l}</div>`;
   }).join('');
 
   const payerOpts = names().map(n =>
@@ -603,13 +601,11 @@ function renderStep1() {
   ms.querySelectorAll('.qc').forEach(c => c.onclick = () => {
     ms.querySelectorAll('.qc').forEach(x => {
       x.classList.remove('on');
-      x.style.background = 'var(--bg)';
-      x.style.border = '1.5px solid var(--brd)';
+      x.style.background = '';
+      x.style.border = '';
+      x.style.color = '';
     });
     c.classList.add('on');
-    const ct = CATS[c.dataset.cat];
-    c.style.background = ct.bg;
-    c.style.border = `2.5px solid ${ct.c}`;
     window._addState.cat = c.dataset.cat;
   });
 
