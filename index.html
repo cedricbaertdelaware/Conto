@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1D9E75">
-<title>Comomeer 2026</title>
+<title>Conto - Gun me barkie niffau</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
 <style>
@@ -81,35 +81,42 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 /* Modal / bottom sheet */
 .mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;display:none;align-items:flex-end;justify-content:center}
 .mo.open{display:flex}
-.ms{background:var(--bg);border-radius:18px 18px 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.ms h2{font-size:16px;font-weight:600;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
-.ms h2 span{font-size:13px;color:var(--tx2);cursor:pointer;font-weight:400}
-.fg{margin-bottom:12px}
-.fg label{display:block;font-size:11px;color:var(--tx2);margin-bottom:4px;font-weight:500}
-.fg input,.fg select{width:100%;font-size:15px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd2);background:var(--bg);color:var(--tx);font-family:var(--font);outline:none;transition:border .15s}
+.ms{background:var(--bg);border-radius:18px 18px 0 0;padding:1rem 1rem 0.75rem;width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.ms h2{font-size:15px;font-weight:600;margin-bottom:0.6rem;display:flex;justify-content:space-between;align-items:center}
+.ms h2 span{font-size:12px;color:var(--tx2);cursor:pointer;font-weight:400}
+.fg{margin-bottom:8px}
+.fg label{display:block;font-size:10px;color:var(--tx2);margin-bottom:2px;font-weight:500}
+.fg input,.fg select{width:100%;font-size:14px;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--brd2);background:var(--bg);color:var(--tx);font-family:var(--font);outline:none;transition:border .15s}
 .fg input:focus,.fg select:focus{border-color:var(--ac)}
-.fg input[type=file]{font-size:12px;padding:8px 0;border:none}
+.fg input[type=file]{font-size:11px;padding:4px 0;border:none}
 .fg input[type=number]{font-variant-numeric:tabular-nums}
+.fg-row{display:flex;gap:8px}
+.fg-row .fg{flex:1;margin-bottom:8px}
 
 /* Category grid in modal */
-.qcat{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-.qc{padding:10px 4px;border-radius:var(--radius);border:1.5px solid var(--brd);cursor:pointer;text-align:center;font-size:11px;transition:all .12s;background:var(--bg);color:var(--tx);font-weight:500}
+.qcat{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.qc{padding:6px 2px;border-radius:var(--radius);border:1.5px solid var(--brd);cursor:pointer;text-align:center;font-size:9px;transition:all .12s;background:var(--bg);color:var(--tx);font-weight:500}
 .qc.on{border-width:2.5px}
-.qc i{font-size:18px;display:block;margin-bottom:3px;font-style:normal}
+.qc i{font-size:16px;display:block;margin-bottom:1px;font-style:normal}
 
 /* Split chips */
-.splitrow{display:flex;flex-wrap:wrap;gap:5px}
-.sp{padding:6px 12px;border-radius:16px;font-size:12px;border:1px solid var(--brd);cursor:pointer;transition:all .1s;background:var(--bg);color:var(--tx);font-weight:400}
+.splitrow{display:flex;flex-wrap:wrap;gap:4px}
+.sp{padding:4px 9px;border-radius:14px;font-size:11px;border:1px solid var(--brd);cursor:pointer;transition:all .1s;background:var(--bg);color:var(--tx);font-weight:400}
 .sp.on{background:var(--ac-l);border-color:var(--ac);color:var(--ac-d);font-weight:500}
 .allbtn{font-size:10px;color:var(--ac-d);cursor:pointer;margin-left:6px;font-weight:600}
 
+/* Step indicator */
+.steps{display:flex;gap:4px;margin-bottom:0.6rem}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--brd)}
+.step-dot.on{background:var(--ac)}
+
 /* Modal actions */
-.macts{display:flex;gap:8px;margin-top:1rem}
-.macts button{flex:1;padding:12px;border-radius:var(--radius);font-size:14px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .1s}
+.macts{display:flex;gap:6px;margin-top:0.6rem;padding-bottom:env(safe-area-inset-bottom,0)}
+.macts button{flex:1;padding:10px;border-radius:var(--radius);font-size:13px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .1s}
 .mbtn-c{background:var(--bg2);border:1px solid var(--brd);color:var(--tx)}
 .mbtn-s{background:var(--ac);border:none;color:#fff}
 .mbtn-s:active{background:var(--ac-d)}
-.mbtn-del{flex:0 0 auto!important;padding:12px 18px!important;color:#E24B4A!important;border-color:#E24B4A!important;background:transparent!important}
+.mbtn-del{flex:0 0 auto!important;padding:10px 14px!important;color:#E24B4A!important;border-color:#E24B4A!important;background:transparent!important}
 
 /* Balance items */
 .bi{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:5px}
@@ -152,27 +159,33 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 
 /* People list */
 .ppl-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:5px}
+.ppl-card.is-me{border-color:var(--ac);border-width:2px;background:var(--ac-l)}
 .ppl-card .pinfo{flex:1;min-width:0}
 .ppl-card .pname{font-size:13px;font-weight:500}
 .ppl-card .piban{font-size:11px;color:var(--tx2);font-family:var(--mono)}
 .ppl-edit{padding:5px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg);font-size:11px;cursor:pointer;color:var(--tx);font-family:var(--font);font-weight:500}
+.me-btn{padding:5px 10px;border-radius:8px;border:1px solid var(--ac);background:var(--ac-l);font-size:11px;cursor:pointer;color:var(--ac-d);font-family:var(--font);font-weight:600}
+.me-btn.active{background:var(--ac);color:#fff}
+.me-tag{display:inline-block;font-size:9px;font-weight:600;color:var(--ac-d);background:var(--ac-l);padding:1px 6px;border-radius:4px;margin-left:4px}
 .ppl-add{width:100%;padding:12px;border-radius:var(--radius);border:1.5px dashed var(--brd2);background:none;font-size:12px;cursor:pointer;color:var(--tx2);font-family:var(--font);font-weight:500;margin-top:0.5rem}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
 <div class="app" id="app">
   <div class="hdr">
     <div class="bar"></div>
-    <h1>Comomeer 2026</h1>
-    <p>Split eerlijk met je maten</p>
+    <h1>Conto</h1>
+    <p>Gun me barkie niffau</p>
   </div>
 
   <div class="add-strip" id="add-strip" role="button" tabindex="0">
     <div class="plus">+</div>
     <div>
-      <div class="atxt">Nieuwe uitgave</div>
-      <div class="asub">Tik om toe te voegen</div>
+      <div class="atxt">Drop een uitgave</div>
+      <div class="asub">Tik hier broer</div>
     </div>
   </div>
 
@@ -189,18 +202,18 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
   </div>
 
   <div class="pnl" id="p-set">
-    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Minimale transacties om te vereffenen</p>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Zo maak je het schoon, geen drama</p>
     <div id="slist"></div>
     <div class="iban-section">
-      <h3>Rekeningnummers</h3>
+      <h3>Bankgegevens voor de transfer</h3>
       <div id="iban-list"></div>
     </div>
   </div>
 
   <div class="pnl" id="p-ppl">
-    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Beheer je groep en rekeningnummers</p>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:0.75rem">Je squad en hun bankrekening. Duid aan wie jij bent!</p>
     <div id="ppl-list"></div>
-    <button class="ppl-add" id="ppl-add">+ Persoon toevoegen</button>
+    <button class="ppl-add" id="ppl-add">+ Nog een broeder erbij</button>
   </div>
 </div>
 
@@ -214,44 +227,84 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 <script>
 // ── Data ──
 const CATS = {
-  food:       { l:'Eten',        i:'\u{1F35D}', c:'#D85A30', bg:'#FAECE7' },
-  drinks:     { l:'Drinken',     i:'\u{1F377}', c:'#534AB7', bg:'#EEEDFE' },
-  transport:  { l:'Transport',   i:'\u{1F697}', c:'#185FA5', bg:'#E6F1FB' },
-  accom:      { l:'Verblijf',    i:'\u{1F3E0}', c:'#D4537E', bg:'#FBEAF0' },
-  activities: { l:'Activiteiten',i:'\u26F5',     c:'#639922', bg:'#EAF3DE' },
-  other:      { l:'Overig',      i:'\u{1F4E6}', c:'#888780', bg:'#F1EFE8' }
+  food:       { l:'Fret',        i:'\u{1F35D}', c:'#D85A30', bg:'#FAECE7' },
+  drinks:     { l:'Drankie',     i:'\u{1F377}', c:'#534AB7', bg:'#EEEDFE' },
+  transport:  { l:'Vroem',       i:'\u{1F697}', c:'#185FA5', bg:'#E6F1FB' },
+  accom:      { l:'Slapen',      i:'\u{1F3E0}', c:'#D4537E', bg:'#FBEAF0' },
+  activities: { l:'Activiteit',  i:'\u26F5',     c:'#639922', bg:'#EAF3DE' },
+  other:      { l:'Random',      i:'\u{1F4E6}', c:'#888780', bg:'#F1EFE8' }
 };
 const PCOL = ['#1D9E75','#534AB7','#D85A30','#185FA5','#D4537E','#639922','#BA7517','#E24B4A','#888780','#993556'];
 
-const STORAGE_KEY = 'como2026';
+const STORAGE_KEY = 'conto_me';
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return null;
-}
-function saveData() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, expenses, nid }));
-  } catch(e) {}
-}
+// ═══════════════════════════════════════════════
+// FIREBASE CONFIG — Vul hier je eigen config in!
+// ═══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDYS3oHdLUTLxSVaNS5RiPr1IX6nWyEWMQ",
+  authDomain: "conto-expensedevider.firebaseapp.com",
+  databaseURL: "https://conto-expensedevider-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "conto-expensedevider",
+  storageBucket: "conto-expensedevider.firebasestorage.app",
+  messagingSenderId: "662806118433",
+  appId: "1:662806118433:web:3dfa7716c833fc708f2360"
+};
+// ═══════════════════════════════════════════════
 
-const saved = loadData();
-let people = saved ? saved.people : [
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dbPeople = db.ref('people');
+const dbExpenses = db.ref('expenses');
+const dbNid = db.ref('nid');
+
+// currentUser is local per device
+let currentUser = null;
+try { currentUser = localStorage.getItem(STORAGE_KEY) || null; } catch(e) {}
+function saveMe() { try { localStorage.setItem(STORAGE_KEY, currentUser || ''); } catch(e) {} }
+
+// Shared state
+let people = [
   {n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'Maat 4',iban:''},
   {n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}
 ];
-let expenses = saved ? saved.expenses : [
-  {id:1,d:'Autobahn tanken',a:95,cat:'transport',payer:'Maat 2',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-10'},
-  {id:2,d:'AirBnB villa',a:1680,cat:'accom',payer:'Cédric',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-10'},
-  {id:3,d:'Aperol bij zonsondergang',a:72,cat:'drinks',payer:'Maat 5',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-11'},
-  {id:4,d:'Pizza Bellagio',a:64,cat:'food',payer:'Maat 3',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-11'},
-  {id:5,d:'Bootje huren',a:220,cat:'activities',payer:'Cédric',split:['Cédric','Maat 2','Maat 3','Maat 4'],rcpt:null,dt:'2026-07-12'},
-  {id:6,d:'Supermarkt BBQ',a:118,cat:'food',payer:'Maat 4',split:['Cédric','Maat 2','Maat 3','Maat 4','Maat 5','Maat 6','Maat 7','Maat 8'],rcpt:null,dt:'2026-07-12'}
-];
-let nid = saved ? saved.nid : 7;
+let expenses = [];
+let nid = 1;
+let fbReady = false;
+
+function saveData() {
+  dbPeople.set(people);
+  dbExpenses.set(expenses);
+  dbNid.set(nid);
+}
+
+// Listen for real-time changes
+dbPeople.on('value', snap => {
+  if (snap.val()) people = snap.val();
+  if (fbReady) render();
+});
+dbExpenses.on('value', snap => {
+  expenses = snap.val() ? Object.values(snap.val()).length ? snap.val() : [] : [];
+  if (Array.isArray(expenses)) { /* ok */ } else { expenses = Object.values(expenses); }
+  if (fbReady) render();
+});
+dbNid.on('value', snap => {
+  if (snap.val()) nid = snap.val();
+});
+
+// Initial load
+db.ref().once('value', snap => {
+  const d = snap.val();
+  if (d) {
+    if (d.people) people = d.people;
+    if (d.expenses) {
+      expenses = Array.isArray(d.expenses) ? d.expenses : Object.values(d.expenses);
+    }
+    if (d.nid) nid = d.nid;
+  }
+  fbReady = true;
+  render();
+});
 let filt = 'all', editId = null, curTab = 'exp';
 
 // ── Helpers ──
@@ -268,7 +321,7 @@ function toast(t) {
 
 // ── Render ──
 function renderNav() {
-  const tabs = [['exp','Uitgaven'],['bal','Balans'],['set','Afrekenen'],['ppl','Groep']];
+  const tabs = [['exp','Uitgaven'],['bal','Wie is blut'],['set','Time to pay bitch'],['ppl','De squad']];
   document.getElementById('nav').innerHTML = tabs.map(([k,l]) =>
     `<button class="nav-btn${curTab===k?' on':''}" data-t="${k}">${l}</button>`
   ).join('');
@@ -287,11 +340,17 @@ function render() {
 
 function renderStats() {
   const tot = expenses.reduce((s,e) => s + e.a, 0);
-  const avg = people.length ? tot / people.length : 0;
+  let myOwed = 0;
+  if (currentUser) {
+    expenses.forEach(e => {
+      if (e.split.includes(currentUser)) myOwed += e.a / e.split.length;
+    });
+  }
+  const myVal = currentUser ? `\u20AC${Math.round(myOwed).toLocaleString('nl-BE')}` : '\u2014';
   document.getElementById('stats').innerHTML =
     `<div class="stat"><div class="sl">Totaal</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div>` +
     `<div class="stat"><div class="sl">Uitgaven</div><div class="sv">${expenses.length}</div></div>` +
-    `<div class="stat"><div class="sl">P.p.</div><div class="sv">\u20AC${Math.round(avg).toLocaleString('nl-BE')}</div></div>`;
+    `<div class="stat" onclick="if(!currentUser){curTab='ppl';render()}" style="${currentUser?'':'cursor:pointer'}"><div class="sl">Mijn deel</div><div class="sv">${myVal}</div>${currentUser?'':'<div style=\"font-size:9px;color:var(--ac-d);margin-top:2px\">Kies in de squad</div>'}</div>`;
 }
 
 function renderCats() {
@@ -309,15 +368,14 @@ function renderList() {
   const f = filt === 'all' ? expenses : expenses.filter(e => e.cat === filt);
   const el = document.getElementById('elist');
   if (!f.length) {
-    el.innerHTML = `<div class="empty"><p>Nog geen uitgaven.<br>Tik hierboven om te starten!</p></div>`;
+    el.innerHTML = `<div class="empty"><p>Niks hier broer.<br>Drop je eerste uitgave hierboven!</p></div>`;
     return;
   }
   el.innerHTML = [...f].reverse().map(e => {
     const c = CATS[e.cat];
-    const rb = e.rcpt ? `<span class="rb">\u{1F4CE} bon</span>` : '';
     return `<div class="ei" data-id="${e.id}">
       <div class="eicon" style="background:${c.bg};color:${c.c}">${c.i}</div>
-      <div class="einfo"><div class="et">${e.d}${rb}</div><div class="em">${e.dt} · ${e.split.length}p</div></div>
+      <div class="einfo"><div class="et">${e.d}</div><div class="em">${e.dt} · ${e.split.length}p</div></div>
       <div class="ea"><div class="ev">\u20AC${e.a.toFixed(2)}</div><div class="ep">${e.payer}</div></div>
     </div>`;
   }).join('');
@@ -367,7 +425,7 @@ function renderSettle() {
     if (Math.abs(crd[ci].a) < 0.01) ci++;
   }
   const el = document.getElementById('slist');
-  if (!stl.length) { el.innerHTML = `<div class="empty"><p>Iedereen staat quitte! 🎉</p></div>`; return; }
+  if (!stl.length) { el.innerHTML = `<div class="empty"><p>Iedereen is clean, wallah!</p></div>`; return; }
   el.innerHTML = stl.map(s => {
     const toP = people.find(p => p.n === s.t);
     const hasIban = toP && toP.iban;
@@ -387,7 +445,7 @@ function renderIbans() {
   const el = document.getElementById('iban-list');
   const withIban = people.filter(p => p.iban);
   if (!withIban.length) {
-    el.innerHTML = `<p style="font-size:11px;color:var(--tx2)">Nog geen IBAN's. Voeg ze toe bij "Groep".</p>`;
+    el.innerHTML = `<p style="font-size:11px;color:var(--tx2)">Nog geen IBAN's bro. Fix dat bij "De squad".</p>`;
     return;
   }
   el.innerHTML = withIban.map(p =>
@@ -402,27 +460,36 @@ function renderIbans() {
 
 function renderPeople() {
   const el = document.getElementById('ppl-list');
-  el.innerHTML = people.map((p, i) =>
-    `<div class="ppl-card">
+  el.innerHTML = people.map((p, i) => {
+    const isMe = currentUser === p.n;
+    return `<div class="ppl-card${isMe?' is-me':''}">
       <div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]};width:30px;height:30px;font-size:11px">${ini(p.n)}</div>
-      <div class="pinfo"><div class="pname">${p.n}</div><div class="piban">${p.iban || 'Geen IBAN'}</div></div>
-      <button class="ppl-edit" onclick="editPerson(${i})">Bewerk</button>
-    </div>`
-  ).join('');
+      <div class="pinfo"><div class="pname">${p.n}${isMe?'<span class="me-tag">jij</span>':''}</div><div class="piban">${p.iban || 'Geen IBAN bro'}</div></div>
+      <button class="me-btn${isMe?' active':''}" onclick="setMe(${i})">${isMe?'Jij!':'Dit ben ik'}</button>
+      <button class="ppl-edit" onclick="editPerson(${i})">Fix</button>
+    </div>`;
+  }).join('');
 }
 
 // ── IBAN copy ──
+function setMe(idx) {
+  const name = people[idx].n;
+  currentUser = (currentUser === name) ? null : name;
+  saveMe(); render();
+  toast(currentUser ? `Hey ${currentUser}!` : 'Niemand geselecteerd');
+}
+
 function copyIban(name) {
   const p = people.find(x => x.n === name);
   if (!p || !p.iban) return;
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(p.iban).then(() => toast('IBAN gekopieerd!')).catch(fallbackCopy);
+    navigator.clipboard.writeText(p.iban).then(() => toast('IBAN geknipt, stuur die rakker!')).catch(fallbackCopy);
   } else { fallbackCopy(); }
   function fallbackCopy() {
     const ta = document.createElement('textarea');
     ta.value = p.iban; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); toast('IBAN gekopieerd!');
+    document.body.removeChild(ta); toast('IBAN geknipt, stuur die rakker!');
   }
 }
 
@@ -434,12 +501,12 @@ document.getElementById('mo').addEventListener('click', function(e) { if (e.targ
 function editPerson(idx) {
   const p = people[idx];
   const ms = document.getElementById('ms');
-  ms.innerHTML = `<h2>Persoon bewerken<span onclick="closeMo()">Annuleer</span></h2>
+  ms.innerHTML = `<h2>Broeder bewerken<span onclick="closeMo()">Laat maar</span></h2>
     <div class="fg"><label>Naam</label><input type="text" id="ep-name" value="${p.n}"></div>
-    <div class="fg"><label>IBAN / rekeningnummer</label><input type="text" id="ep-iban" value="${p.iban}" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
+    <div class="fg"><label>IBAN (voor de transfers)</label><input type="text" id="ep-iban" value="${p.iban}" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
     <div class="macts">
-      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
-      <button class="mbtn-s" onclick="savePerson(${idx})">Opslaan</button>
+      <button class="mbtn-c" onclick="closeMo()">Nee toch</button>
+      <button class="mbtn-s" onclick="savePerson(${idx})">Save</button>
     </div>`;
   document.getElementById('mo').classList.add('open');
   document.getElementById('ep-name').focus();
@@ -451,21 +518,22 @@ function savePerson(idx) {
   if (!nn) return;
   const old = people[idx].n;
   people[idx].n = nn; people[idx].iban = ni;
+  if (currentUser === old) { currentUser = nn; saveMe(); }
   expenses.forEach(e => {
     if (e.payer === old) e.payer = nn;
     e.split = e.split.map(s => s === old ? nn : s);
   });
-  closeMo(); saveData(); render(); toast('Opgeslagen!');
+  closeMo(); saveData(); render(); toast('Gefixt!');
 }
 
 function addPerson() {
   const ms = document.getElementById('ms');
-  ms.innerHTML = `<h2>Persoon toevoegen<span onclick="closeMo()">Annuleer</span></h2>
+  ms.innerHTML = `<h2>Nieuwe broeder<span onclick="closeMo()">Laat maar</span></h2>
     <div class="fg"><label>Naam</label><input type="text" id="ep-name" placeholder="Naam"></div>
-    <div class="fg"><label>IBAN / rekeningnummer</label><input type="text" id="ep-iban" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
+    <div class="fg"><label>IBAN (voor de transfers)</label><input type="text" id="ep-iban" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div>
     <div class="macts">
-      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
-      <button class="mbtn-s" onclick="saveNewPerson()">Toevoegen</button>
+      <button class="mbtn-c" onclick="closeMo()">Nee toch</button>
+      <button class="mbtn-s" onclick="saveNewPerson()">Erbij!</button>
     </div>`;
   document.getElementById('mo').classList.add('open');
   document.getElementById('ep-name').focus();
@@ -476,7 +544,7 @@ function saveNewPerson() {
   const ni = document.getElementById('ep-iban').value.trim().toUpperCase();
   if (!nn) return;
   people.push({ n: nn, iban: ni });
-  closeMo(); saveData(); render(); toast(nn + ' toegevoegd!');
+  closeMo(); saveData(); render(); toast(nn + ' zit erbij swa!');
 }
 
 document.getElementById('ppl-add').onclick = addPerson;
@@ -489,36 +557,49 @@ function openAdd(eid) {
   const ex = isEdit ? expenses.find(e => e.id === eid) : null;
   editId = eid || null;
 
+  window._addState = {
+    step: 1,
+    isEdit,
+    eid,
+    ex,
+    cat: ex ? ex.cat : 'food',
+    payer: ex ? ex.payer : (currentUser || names()[0]),
+    split: ex ? [...ex.split] : [...names()],
+    d: ex ? ex.d : '',
+    a: ex ? ex.a : '',
+  };
+  renderStep1();
+  mo.classList.add('open');
+}
+
+function renderStep1() {
+  const ms = document.getElementById('ms');
+  const s = window._addState;
+
   const catGrid = Object.entries(CATS).map(([k,v]) => {
-    const on = ex ? ex.cat === k : k === 'food';
+    const on = s.cat === k;
     const bc = on ? v.bg : 'var(--bg)';
     const bor = on ? `2.5px solid ${v.c}` : '1.5px solid var(--brd)';
     return `<div class="qc${on?' on':''}" data-cat="${k}" style="background:${bc};border:${bor}"><i>${v.i}</i>${v.l}</div>`;
   }).join('');
 
   const payerOpts = names().map(n =>
-    `<option value="${n}"${ex && ex.payer === n ? ' selected' : ''}>${n}</option>`
+    `<option value="${n}"${s.payer === n ? ' selected' : ''}>${n}</option>`
   ).join('');
 
-  const splitChips = names().map(n => {
-    const on = ex ? ex.split.includes(n) : true;
-    return `<div class="sp${on?' on':''}" data-p="${n}">${n}</div>`;
-  }).join('');
-
-  ms.innerHTML = `<h2>${isEdit ? 'Bewerken' : 'Nieuwe uitgave'}<span onclick="closeMo()">Annuleer</span></h2>
-    <div class="fg"><label>Wat?</label><input type="text" id="mi-d" placeholder="bv. Diner aan het meer" value="${ex ? ex.d : ''}"></div>
-    <div class="fg"><label>Bedrag (\u20AC)</label><input type="number" id="mi-a" placeholder="0.00" step="0.01" min="0" value="${ex ? ex.a : ''}" inputmode="decimal"></div>
+  ms.innerHTML = `<h2>${s.isEdit ? 'Aanpassen' : 'Nieuwe uitgave'}<span onclick="closeMo()">Laat maar</span></h2>
+    <div class="steps"><div class="step-dot on"></div><div class="step-dot"></div></div>
+    <div class="fg"><label>Waarvoor?</label><input type="text" id="mi-d" placeholder="bv. Pasta aan het meer" value="${s.d}"></div>
+    <div class="fg-row">
+      <div class="fg"><label>Hoeveel schade?</label><input type="number" id="mi-a" placeholder="0.00" step="0.01" min="0" value="${s.a}" inputmode="decimal"></div>
+      <div class="fg"><label>Wie heeft gelapt?</label><select id="mi-p">${payerOpts}</select></div>
+    </div>
     <div class="fg"><label>Categorie</label><div class="qcat" id="mi-cat">${catGrid}</div></div>
-    <div class="fg"><label>Betaald door</label><select id="mi-p">${payerOpts}</select></div>
-    <div class="fg"><label>Delen met <span class="allbtn" id="tog-all">alles aan/uit</span></label><div class="splitrow" id="mi-sp">${splitChips}</div></div>
-    <div class="fg"><label>Bon / foto (optioneel)</label><input type="file" id="mi-r" accept="image/*" capture="environment"></div>
     <div class="macts">
-      ${isEdit ? `<button class="mbtn-c mbtn-del" onclick="delExp(${eid})">Wis</button>` : ''}
-      <button class="mbtn-c" onclick="closeMo()">Annuleer</button>
-      <button class="mbtn-s" onclick="saveExp()">Opslaan</button>
+      <button class="mbtn-c" onclick="closeMo()">Nee toch</button>
+      <button class="mbtn-s" onclick="goStep2()">Volgende</button>
     </div>`;
 
-  // Category tap
   ms.querySelectorAll('.qc').forEach(c => c.onclick = () => {
     ms.querySelectorAll('.qc').forEach(x => {
       x.classList.remove('on');
@@ -529,58 +610,84 @@ function openAdd(eid) {
     const ct = CATS[c.dataset.cat];
     c.style.background = ct.bg;
     c.style.border = `2.5px solid ${ct.c}`;
+    window._addState.cat = c.dataset.cat;
   });
 
-  // Split chips
-  ms.querySelectorAll('.sp').forEach(c => c.onclick = () => c.classList.toggle('on'));
+  setTimeout(() => document.getElementById('mi-d').focus(), 150);
+}
+
+function goStep2() {
+  const s = window._addState;
+  const d = document.getElementById('mi-d').value.trim();
+  const a = parseFloat(document.getElementById('mi-a').value);
+  if (!d || isNaN(a) || a <= 0) {
+    toast('Vul wat in broer!');
+    return;
+  }
+  s.d = d;
+  s.a = a;
+  s.payer = document.getElementById('mi-p').value;
+  const catEl = document.querySelector('#mi-cat .qc.on');
+  if (catEl) s.cat = catEl.dataset.cat;
+  renderStep2();
+}
+
+function renderStep2() {
+  const ms = document.getElementById('ms');
+  const s = window._addState;
+
+  const splitChips = names().map(n => {
+    const on = s.split.includes(n);
+    return `<div class="sp${on?' on':''}" data-p="${n}">${n}</div>`;
+  }).join('');
+
+  ms.innerHTML = `<h2>${s.isEdit ? 'Aanpassen' : 'Nieuwe uitgave'}<span onclick="closeMo()">Laat maar</span></h2>
+    <div class="steps"><div class="step-dot on"></div><div class="step-dot on"></div></div>
+    <div style="background:var(--bg2);border-radius:var(--radius);padding:8px 10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+      <span style="font-weight:500">${s.d}</span><span style="font-weight:600">\u20AC${s.a.toFixed(2)}</span>
+    </div>
+    <div class="fg"><label>Splitten met <span class="allbtn" id="tog-all">iedereen aan/uit</span></label><div class="splitrow" id="mi-sp">${splitChips}</div></div>
+    <div class="macts">
+      ${s.isEdit ? `<button class="mbtn-c mbtn-del" onclick="delExp(${s.eid})">Weg ermee</button>` : ''}
+      <button class="mbtn-c" onclick="renderStep1()">Terug</button>
+      <button class="mbtn-s" onclick="saveExp()">Save</button>
+    </div>`;
+
+  ms.querySelectorAll('.sp').forEach(c => c.onclick = () => {
+    c.classList.toggle('on');
+    const p = c.dataset.p;
+    if (c.classList.contains('on')) { if (!s.split.includes(p)) s.split.push(p); }
+    else { s.split = s.split.filter(x => x !== p); }
+  });
   document.getElementById('tog-all').onclick = () => {
     const all = ms.querySelectorAll('.sp');
     const allOn = [...all].every(c => c.classList.contains('on'));
     all.forEach(c => allOn ? c.classList.remove('on') : c.classList.add('on'));
+    s.split = allOn ? [] : [...names()];
   };
-
-  mo.classList.add('open');
-  setTimeout(() => document.getElementById('mi-d').focus(), 150);
 }
 
 function saveExp() {
-  const d = document.getElementById('mi-d').value.trim();
-  const a = parseFloat(document.getElementById('mi-a').value);
-  if (!d || isNaN(a) || a <= 0) return;
-  const catEl = document.querySelector('#mi-cat .qc.on');
-  const cat = catEl ? catEl.dataset.cat : 'other';
-  const payer = document.getElementById('mi-p').value;
+  const s = window._addState;
   const split = [...document.querySelectorAll('#mi-sp .sp.on')].map(c => c.dataset.p);
-  if (!split.length) return;
-  const fileIn = document.getElementById('mi-r');
+  if (!split.length) { toast('Kies minstens 1 broeder!'); return; }
 
-  const finish = (rcpt) => {
-    if (editId) {
-      const e = expenses.find(x => x.id === editId);
-      e.d = d; e.a = a; e.cat = cat; e.payer = payer; e.split = split;
-      if (rcpt) e.rcpt = rcpt;
-    } else {
-      const dt = new Date().toISOString().slice(0, 10);
-      expenses.push({ id: nid++, d, a, cat, payer, split, rcpt, dt });
-    }
-    closeMo(); saveData(); render();
-    toast(editId ? 'Bijgewerkt!' : 'Toegevoegd!');
-  };
-
-  if (fileIn.files && fileIn.files[0]) {
-    const r = new FileReader();
-    r.onload = ev => finish(ev.target.result);
-    r.readAsDataURL(fileIn.files[0]);
+  if (s.isEdit) {
+    const e = expenses.find(x => x.id === s.eid);
+    e.d = s.d; e.a = s.a; e.cat = s.cat; e.payer = s.payer; e.split = split;
   } else {
-    finish(null);
+    const dt = new Date().toISOString().slice(0, 10);
+    expenses.push({ id: nid++, d: s.d, a: s.a, cat: s.cat, payer: s.payer, split, dt });
   }
+  closeMo(); saveData(); render();
+  toast(s.isEdit ? 'Updated swa!' : 'Erin gedropt!');
 }
 
 function delExp(id) {
   expenses = expenses.filter(e => e.id !== id);
   closeMo();
   document.getElementById('dtl').classList.remove('open');
-  saveData(); render(); toast('Verwijderd');
+  saveData(); render(); toast('Weg is ie!');
 }
 
 // ── Detail view ──
@@ -589,41 +696,38 @@ function showDtl(id) {
   if (!e) return;
   const c = CATS[e.cat];
   const sh = (e.a / e.split.length).toFixed(2);
-  let rcptH = e.rcpt
-    ? `<div style="margin-top:1rem;border-radius:var(--radius);overflow:hidden"><img src="${e.rcpt}" style="width:100%;display:block" alt="bon"></div>`
-    : '';
 
   const dtl = document.getElementById('dtl');
   dtl.innerHTML = `
-    <div class="dbk" onclick="document.getElementById('dtl').classList.remove('open')">\u2190 Terug</div>
+    <div class="dbk" onclick="document.getElementById('dtl').classList.remove('open')">\u2190 Terug bro</div>
     <div class="dh">
       <div class="eicon" style="background:${c.bg};color:${c.c};width:40px;height:40px;font-size:18px;margin-bottom:8px;border-radius:10px;display:flex;align-items:center;justify-content:center">${c.i}</div>
       <h3>${e.d}</h3>
       <p style="font-size:12px;color:var(--tx2);margin-top:3px">${c.l} · ${e.dt}</p>
     </div>
-    <div class="dr"><span class="dl">Bedrag</span><span style="font-weight:600">\u20AC${e.a.toFixed(2)}</span></div>
-    <div class="dr"><span class="dl">Betaald door</span><span>${e.payer}</span></div>
-    <div class="dr"><span class="dl">Gedeeld met</span><span>${e.split.length} personen</span></div>
-    <div class="dr"><span class="dl">Per persoon</span><span>\u20AC${sh}</span></div>
+    <div class="dr"><span class="dl">Schade</span><span style="font-weight:600">\u20AC${e.a.toFixed(2)}</span></div>
+    <div class="dr"><span class="dl">Gelapt door</span><span>${e.payer}</span></div>
+    <div class="dr"><span class="dl">Gesplit met</span><span>${e.split.length} broeders</span></div>
+    <div class="dr"><span class="dl">Per hoofd</span><span>\u20AC${sh}</span></div>
     <div style="margin-top:10px">
-      <p style="font-size:11px;color:var(--tx2);margin-bottom:6px">Deelnemers</p>
+      <p style="font-size:11px;color:var(--tx2);margin-bottom:6px">De squad</p>
       <div style="display:flex;flex-wrap:wrap;gap:5px">
         ${e.split.map(p => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:4px 10px;border-radius:14px;background:var(--bg2)">
           <span style="width:18px;height:18px;border-radius:50%;background:${pcol(p)}20;color:${pcol(p)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:600">${ini(p)}</span>${p}
         </span>`).join('')}
       </div>
     </div>
-    ${rcptH}
     <div style="display:flex;gap:8px;margin-top:1.5rem">
-      <button style="flex:1;padding:12px;border-radius:var(--radius);background:none;border:1.5px solid #E24B4A;color:#E24B4A;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="delExp(${e.id})">Verwijderen</button>
-      <button style="flex:1;padding:12px;border-radius:var(--radius);background:var(--ac);border:none;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="document.getElementById('dtl').classList.remove('open');openAdd(${e.id})">Bewerken</button>
+      <button style="flex:1;padding:12px;border-radius:var(--radius);background:none;border:1.5px solid #E24B4A;color:#E24B4A;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="delExp(${e.id})">Weg ermee</button>
+      <button style="flex:1;padding:12px;border-radius:var(--radius);background:var(--ac);border:none;color:#fff;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font)" onclick="document.getElementById('dtl').classList.remove('open');openAdd(${e.id})">Aanpassen</button>
     </div>`;
   dtl.classList.add('open');
 }
 
 // ── Init ──
 document.getElementById('add-strip').onclick = () => openAdd();
-render();
+document.getElementById('ppl-add').onclick = addPerson;
+// Initial render happens in Firebase once() callback
 </script>
 </body>
 </html>
