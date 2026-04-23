@@ -129,9 +129,14 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 .pos{color:#1D9E75}.neg{color:#E24B4A}
 
 /* Settlement items */
-.si{display:flex;align-items:center;gap:6px;padding:11px 12px;border-radius:var(--radius);background:var(--bg2);margin-bottom:5px;font-size:12px;font-weight:500}
-.sarr{color:var(--ac);font-weight:600;font-size:16px}
+.si{display:flex;align-items:center;gap:6px;padding:11px 12px;border-radius:var(--radius);background:var(--bg2);margin-bottom:5px;font-size:12px;font-weight:500;flex-wrap:wrap}
+.si.paid-row{opacity:0.5}
+.si.paid-row .samt{text-decoration:line-through}
+.sarr{color:var(--ac);font-weight:600;font-size:14px}
 .samt{margin-left:auto;font-weight:600;font-size:14px}
+.pay-btn{padding:4px 10px;border-radius:8px;border:1px solid var(--ac);background:var(--ac-l);font-size:10px;cursor:pointer;color:var(--ac-d);font-family:var(--font);font-weight:600;transition:all .1s;white-space:nowrap}
+.pay-btn:active{background:var(--ac);color:#fff}
+.pay-btn.done{background:var(--ac);color:#fff;border-color:var(--ac)}
 
 /* IBAN */
 .iban-section{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--brd)}
@@ -141,6 +146,13 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 .iban-row .ibnum{flex:1;font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ibcopy{padding:5px 10px;border-radius:8px;background:var(--ac-l);color:var(--ac-d);border:none;font-size:11px;cursor:pointer;white-space:nowrap;font-weight:600;font-family:var(--font);transition:all .1s}
 .ibcopy:active{background:var(--ac);color:#fff}
+
+/* Payment log */
+.pl-item{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--brd);margin-bottom:4px;font-size:11px}
+.pl-item .pl-names{flex:1;min-width:0}
+.pl-item .pl-amt{font-weight:600;font-size:12px;white-space:nowrap}
+.pl-item .pl-date{font-size:10px;color:var(--tx2);white-space:nowrap}
+.pl-check{color:var(--ac);font-size:14px;flex-shrink:0}
 
 /* Toast */
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-60px);background:var(--ac-d);color:#fff;padding:8px 20px;border-radius:24px;font-size:13px;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);pointer-events:none;font-weight:500}
@@ -208,6 +220,10 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
       <h3>Bankgegevens voor de transfer</h3>
       <div id="iban-list"></div>
     </div>
+    <div class="iban-section" id="paylog-section" style="display:none">
+      <h3>Betaallog</h3>
+      <div id="paylog"></div>
+    </div>
   </div>
 
   <div class="pnl" id="p-ppl">
@@ -257,6 +273,7 @@ const db = firebase.database();
 const dbPeople = db.ref('people');
 const dbExpenses = db.ref('expenses');
 const dbNid = db.ref('nid');
+const dbPayments = db.ref('payments');
 
 // currentUser is local per device
 let currentUser = null;
@@ -269,6 +286,7 @@ let people = [
   {n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}
 ];
 let expenses = [];
+let payments = [];
 let nid = 1;
 let fbReady = false;
 
@@ -276,6 +294,10 @@ function saveData() {
   dbPeople.set(people);
   dbExpenses.set(expenses);
   dbNid.set(nid);
+  dbPayments.set(payments);
+}
+function savePayments() {
+  dbPayments.set(payments);
 }
 
 // Listen for real-time changes
@@ -291,6 +313,10 @@ dbExpenses.on('value', snap => {
 dbNid.on('value', snap => {
   if (snap.val()) nid = snap.val();
 });
+dbPayments.on('value', snap => {
+  payments = snap.val() ? (Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val())) : [];
+  if (fbReady) render();
+});
 
 // Initial load
 db.ref().once('value', snap => {
@@ -301,6 +327,9 @@ db.ref().once('value', snap => {
       expenses = Array.isArray(d.expenses) ? d.expenses : Object.values(d.expenses);
     }
     if (d.nid) nid = d.nid;
+    if (d.payments) {
+      payments = Array.isArray(d.payments) ? d.payments : Object.values(d.payments);
+    }
   }
   fbReady = true;
   render();
@@ -334,7 +363,7 @@ function render() {
   document.getElementById('p-' + curTab).classList.add('on');
   if (curTab === 'exp') { renderStats(); renderCats(); renderList(); }
   else if (curTab === 'bal') renderBal();
-  else if (curTab === 'set') { renderSettle(); renderIbans(); }
+  else if (curTab === 'set') { renderSettle(); renderIbans(); renderPaylog(); }
   else if (curTab === 'ppl') renderPeople();
 }
 
@@ -390,6 +419,10 @@ function renderBal() {
     const sh = e.a / e.split.length;
     e.split.forEach(p => { if (bal[p] !== undefined) bal[p] -= sh; });
   });
+  payments.forEach(pm => {
+    if (bal[pm.f] !== undefined) bal[pm.f] += pm.a;
+    if (bal[pm.t] !== undefined) bal[pm.t] -= pm.a;
+  });
   const mx = Math.max(...Object.values(bal).map(Math.abs), 1);
   document.getElementById('blist').innerHTML = names().map(n => {
     const v = bal[n] || 0;
@@ -413,6 +446,12 @@ function renderSettle() {
     const sh = e.a / e.split.length;
     e.split.forEach(p => { if (bal[p] !== undefined) bal[p] -= sh; });
   });
+  // Apply payments to balances
+  payments.forEach(pm => {
+    if (bal[pm.f] !== undefined) bal[pm.f] += pm.a;
+    if (bal[pm.t] !== undefined) bal[pm.t] -= pm.a;
+  });
+
   const dbt = names().filter(n => bal[n] < -0.01).map(n => ({n, a: bal[n]})).sort((a,b) => a.a - b.a);
   const crd = names().filter(n => bal[n] > 0.01).map(n => ({n, a: bal[n]})).sort((a,b) => b.a - a.a);
   const stl = [];
@@ -425,20 +464,64 @@ function renderSettle() {
     if (Math.abs(crd[ci].a) < 0.01) ci++;
   }
   const el = document.getElementById('slist');
-  if (!stl.length) { el.innerHTML = `<div class="empty"><p>Iedereen is clean, wallah!</p></div>`; return; }
-  el.innerHTML = stl.map(s => {
+
+  // Show paid payments first as "done", then open settlements
+  let html = '';
+
+  // Paid items
+  if (payments.length) {
+    html += payments.map((pm, i) =>
+      `<div class="si paid-row">
+        <div class="bav" style="background:${pcol(pm.f)}20;color:${pcol(pm.f)};width:24px;height:24px;font-size:9px">${ini(pm.f)}</div>
+        <span>${pm.f}</span><span class="sarr">\u2192</span><span>${pm.t}</span>
+        <div class="bav" style="background:${pcol(pm.t)}20;color:${pcol(pm.t)};width:24px;height:24px;font-size:9px">${ini(pm.t)}</div>
+        <span class="samt">\u20AC${pm.a.toFixed(2)}</span>
+        <button class="pay-btn done" onclick="event.stopPropagation();undoPay(${i})">Betaald</button>
+      </div>`
+    ).join('');
+  }
+
+  // Open settlements
+  if (!stl.length && !payments.length) {
+    el.innerHTML = `<div class="empty"><p>Iedereen is clean, wallah!</p></div>`;
+    return;
+  }
+  if (!stl.length) {
+    html += `<div class="empty"><p>Alles is betaald, nice!</p></div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  html += stl.map((s, i) => {
     const toP = people.find(p => p.n === s.t);
     const hasIban = toP && toP.iban;
     const ibanBtn = hasIban
       ? `<button class="ibcopy" onclick="event.stopPropagation();copyIban('${s.t.replace(/'/g,"\\'")}')">IBAN</button>`
       : '';
+    const escF = s.f.replace(/'/g,"\\'");
+    const escT = s.t.replace(/'/g,"\\'");
     return `<div class="si">
       <div class="bav" style="background:${pcol(s.f)}20;color:${pcol(s.f)};width:24px;height:24px;font-size:9px">${ini(s.f)}</div>
       <span>${s.f}</span><span class="sarr">\u2192</span><span>${s.t}</span>
       <div class="bav" style="background:${pcol(s.t)}20;color:${pcol(s.t)};width:24px;height:24px;font-size:9px">${ini(s.t)}</div>
-      <span class="samt">\u20AC${s.a.toFixed(2)}</span>${ibanBtn}
+      <span class="samt">\u20AC${s.a.toFixed(2)}</span>
+      <button class="pay-btn" onclick="event.stopPropagation();markPaid('${escF}','${escT}',${s.a})">Betaal</button>
+      ${ibanBtn}
     </div>`;
   }).join('');
+  el.innerHTML = html;
+}
+
+function markPaid(from, to, amount) {
+  payments.push({ f: from, t: to, a: Math.round(amount * 100) / 100, dt: new Date().toISOString().slice(0,10) });
+  savePayments(); render();
+  toast(from + ' heeft ' + to + ' betaald!');
+}
+
+function undoPay(idx) {
+  payments.splice(idx, 1);
+  savePayments(); render();
+  toast('Betaling ongedaan gemaakt');
 }
 
 function renderIbans() {
@@ -456,6 +539,25 @@ function renderIbans() {
       <button class="ibcopy" onclick="copyIban('${p.n.replace(/'/g,"\\'")}')">Kopieer</button>
     </div>`
   ).join('');
+}
+
+function renderPaylog() {
+  const section = document.getElementById('paylog-section');
+  const el = document.getElementById('paylog');
+  if (!payments.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  el.innerHTML = [...payments].reverse().map((pm, ri) => {
+    const idx = payments.length - 1 - ri;
+    return `<div class="pl-item">
+      <span class="pl-check">\u2713</span>
+      <div class="pl-names">${pm.f} <span style="color:var(--ac)">\u2192</span> ${pm.t}</div>
+      <span class="pl-amt">\u20AC${pm.a.toFixed(2)}</span>
+      <span class="pl-date">${pm.dt || ''}</span>
+    </div>`;
+  }).join('');
 }
 
 function renderPeople() {
