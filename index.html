@@ -157,8 +157,8 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 .pl-check{color:var(--ac);font-size:14px;flex-shrink:0}
 
 /* Toast */
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--ac-d);color:#fff;padding:8px 20px;border-radius:24px;font-size:13px;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);pointer-events:none;font-weight:500;opacity:0}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);background:var(--ac-d);color:#fff;padding:8px 20px;border-radius:24px;font-size:13px;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;pointer-events:none;font-weight:500;opacity:0;max-width:90vw;text-align:center;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(16px);opacity:1}
 
 /* Detail overlay */
 .dtl{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:50;display:none;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -167,6 +167,19 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 .dh h3{font-size:18px;font-weight:600}
 .dr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd);font-size:13px}
 .dr .dl{color:var(--tx2)}
+
+/* Chart overlay */
+.chart-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:60;display:none;padding:1rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.chart-ov.open{display:block}
+.chart-person{margin-bottom:16px}
+.chart-name{font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.chart-name .chart-total{font-weight:400;color:var(--tx2);font-size:12px;margin-left:auto}
+.chart-bars{display:flex;height:28px;border-radius:6px;overflow:hidden;background:var(--bg2)}
+.chart-bar{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;min-width:0;overflow:hidden;white-space:nowrap;transition:width .4s}
+.chart-bar span{padding:0 4px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chart-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+.chart-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
 /* Empty state */
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--tx2)}
@@ -240,6 +253,7 @@ body{font-family:var(--font);color:var(--tx);background:var(--bg);-webkit-tap-hi
 </div>
 
 <div class="dtl" id="dtl"></div>
+<div class="chart-ov" id="chart-ov"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -355,6 +369,63 @@ function toast(t) {
 }
 
 // ── Render ──
+
+function showChart() {
+  const ov = document.getElementById('chart-ov');
+  // Build data: per person, per category how much they spent (as payer)
+  const data = {};
+  names().forEach(n => {
+    data[n] = {};
+    Object.keys(CATS).forEach(k => data[n][k] = 0);
+  });
+  expenses.forEach(e => {
+    if (data[e.payer] && CATS[e.cat]) {
+      data[e.payer][e.cat] += e.a;
+    }
+  });
+
+  // Sort people by total spent descending
+  const sorted = names().map(n => ({
+    n, cats: data[n], total: Object.values(data[n]).reduce((s,v) => s + v, 0)
+  })).sort((a,b) => b.total - a.total);
+
+  const maxTotal = Math.max(...sorted.map(s => s.total), 1);
+
+  // Legend
+  const usedCats = Object.keys(CATS).filter(k => expenses.some(e => e.cat === k));
+  const legendHtml = usedCats.map(k =>
+    `<div class="chart-legend-item"><div class="chart-legend-dot" style="background:${CATS[k].c}"></div>${CATS[k].i} ${CATS[k].l}</div>`
+  ).join('');
+
+  // Bars per person
+  const personsHtml = sorted.map(p => {
+    if (p.total < 0.01) return '';
+    const barsHtml = usedCats.map(k => {
+      const val = p.cats[k];
+      if (val < 0.01) return '';
+      const pct = (val / maxTotal * 100);
+      const label = pct > 8 ? `<span>\u20AC${Math.round(val)}</span>` : '';
+      return `<div class="chart-bar" style="width:${pct}%;background:${CATS[k].c}">${label}</div>`;
+    }).join('');
+    return `<div class="chart-person">
+      <div class="chart-name">
+        <div class="bav" style="background:${pcol(p.n)}20;color:${pcol(p.n)};width:22px;height:22px;font-size:9px">${ini(p.n)}</div>
+        ${p.n}
+        <span class="chart-total">\u20AC${Math.round(p.total).toLocaleString('nl-BE')}</span>
+      </div>
+      <div class="chart-bars">${barsHtml}</div>
+    </div>`;
+  }).join('');
+
+  ov.innerHTML = `
+    <div class="dbk" onclick="document.getElementById('chart-ov').classList.remove('open')">\u2190 Terug bro</div>
+    <div class="dh"><h3>Wie lapt het meest?</h3><p style="font-size:12px;color:var(--tx2);margin-top:3px">Uitgaven per persoon per categorie</p></div>
+    <div style="margin-top:12px">${legendHtml}</div>
+    <div style="margin-top:12px">${personsHtml}</div>
+  `;
+  ov.classList.add('open');
+}
+
 function renderNav() {
   const tabs = [['exp','Uitgaven'],['bal','Wie is blut'],['set','Time to pay'],['ppl','De squad']];
   document.getElementById('nav').innerHTML = tabs.map(([k,l]) =>
@@ -385,7 +456,22 @@ function renderStats() {
   document.getElementById('stats').innerHTML =
     `<div class="stat"><div class="sl">Totaal</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div>` +
     `<div class="stat"><div class="sl">Uitgaven</div><div class="sv">${expenses.length}</div></div>` +
-    `<div class="stat" onclick="if(!currentUser){curTab='ppl';render()}" style="${currentUser?'':'cursor:pointer'}"><div class="sl">Mijn deel</div><div class="sv">${myVal}</div>${currentUser?'':'<div style=\"font-size:9px;color:var(--ac-d);margin-top:2px\">Kies in de squad</div>'}</div>`;
+    `<div class="stat" id="stat-mine" style="${currentUser?'':'cursor:pointer'}"><div class="sl">Mijn deel</div><div class="sv">${myVal}</div>${currentUser?'':'<div style=\"font-size:9px;color:var(--ac-d);margin-top:2px\">Kies in de squad</div>'}</div>`;
+  document.getElementById('stat-mine').onclick = () => {
+    if (!currentUser) { curTab = 'ppl'; render(); return; }
+    handleStatTap();
+  };
+}
+
+let _statTaps = 0, _statTapTimer = null;
+function handleStatTap() {
+  _statTaps++;
+  if (_statTapTimer) clearTimeout(_statTapTimer);
+  _statTapTimer = setTimeout(() => { _statTaps = 0; }, 800);
+  if (_statTaps >= 5) {
+    _statTaps = 0;
+    showChart();
+  }
 }
 
 function renderCats() {
@@ -527,7 +613,7 @@ function markPaid(from, to, amount) {
 function undoPay(idx) {
   payments.splice(idx, 1);
   savePayments(); render();
-  toast('Betaling ongedaan gemaakt');
+  toast('Teruggedraaid!');
 }
 
 function renderIbans() {
