@@ -341,11 +341,15 @@ function ini(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slic
 function pcol(n) { const i = people.findIndex(p => p.n === n); return PCOL[(i >= 0 ? i : 0) % PCOL.length]; }
 function names() { return people.map(p => p.n); }
 
+let _toastTimer = null;
 function toast(t) {
   const e = document.getElementById('toast');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  e.classList.remove('show');
+  void e.offsetWidth;
   e.textContent = t;
   e.classList.add('show');
-  setTimeout(() => e.classList.remove('show'), 1800);
+  _toastTimer = setTimeout(() => { e.classList.remove('show'); _toastTimer = null; }, 2000);
 }
 
 // ── Render ──
