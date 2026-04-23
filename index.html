@@ -468,27 +468,9 @@ function renderSettle() {
   // Show paid payments first as "done", then open settlements
   let html = '';
 
-  // Paid items
-  if (payments.length) {
-    html += payments.map((pm, i) =>
-      `<div class="si paid-row">
-        <div class="bav" style="background:${pcol(pm.f)}20;color:${pcol(pm.f)};width:24px;height:24px;font-size:9px">${ini(pm.f)}</div>
-        <span>${pm.f}</span><span class="sarr">\u2192</span><span>${pm.t}</span>
-        <div class="bav" style="background:${pcol(pm.t)}20;color:${pcol(pm.t)};width:24px;height:24px;font-size:9px">${ini(pm.t)}</div>
-        <span class="samt">\u20AC${pm.a.toFixed(2)}</span>
-        <button class="pay-btn done" onclick="event.stopPropagation();undoPay(${i})">Betaald</button>
-      </div>`
-    ).join('');
-  }
-
-  // Open settlements
+  // Open settlements first
   if (!stl.length && !payments.length) {
     el.innerHTML = `<div class="empty"><p>Iedereen is clean, wallah!</p></div>`;
-    return;
-  }
-  if (!stl.length) {
-    html += `<div class="empty"><p>Alles is betaald, nice!</p></div>`;
-    el.innerHTML = html;
     return;
   }
 
@@ -509,6 +491,24 @@ function renderSettle() {
       ${ibanBtn}
     </div>`;
   }).join('');
+
+  // Paid items below
+  if (payments.length) {
+    html += payments.map((pm, i) =>
+      `<div class="si paid-row">
+        <div class="bav" style="background:${pcol(pm.f)}20;color:${pcol(pm.f)};width:24px;height:24px;font-size:9px">${ini(pm.f)}</div>
+        <span>${pm.f}</span><span class="sarr">\u2192</span><span>${pm.t}</span>
+        <div class="bav" style="background:${pcol(pm.t)}20;color:${pcol(pm.t)};width:24px;height:24px;font-size:9px">${ini(pm.t)}</div>
+        <span class="samt">\u20AC${pm.a.toFixed(2)}</span>
+        <button class="pay-btn done" onclick="event.stopPropagation();undoPay(${i})">Betaald</button>
+      </div>`
+    ).join('');
+  }
+
+  if (!stl.length && payments.length) {
+    html = `<div class="empty"><p>Alles is betaald, nice!</p></div>` + html;
+  }
+
   el.innerHTML = html;
 }
 
