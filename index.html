@@ -424,6 +424,67 @@ function showChart() {
     <div style="margin-top:12px">${personsHtml}</div>
   `;
   ov.classList.add('open');
+  fireConfetti();
+}
+
+function fireConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;pointer-events:none';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  const colors = ['#1D9E75','#534AB7','#D85A30','#185FA5','#D4537E','#639922','#BA7517','#E24B4A','#FAC775','#5DCAA5'];
+  const pieces = [];
+  const total = 120;
+
+  for (let i = 0; i < total; i++) {
+    const side = Math.random() < 0.5 ? 0 : 1;
+    pieces.push({
+      x: side ? canvas.width + 10 : -10,
+      y: canvas.height * 0.3 + Math.random() * canvas.height * 0.2,
+      vx: (side ? -1 : 1) * (4 + Math.random() * 8),
+      vy: -(6 + Math.random() * 10),
+      g: 0.25 + Math.random() * 0.15,
+      w: 6 + Math.random() * 6,
+      h: 4 + Math.random() * 4,
+      r: Math.random() * 360,
+      rv: (Math.random() - 0.5) * 12,
+      c: colors[Math.floor(Math.random() * colors.length)],
+      a: 1,
+      delay: Math.random() * 300
+    });
+  }
+
+  const start = performance.now();
+  function frame(now) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = now - start;
+    let alive = false;
+    pieces.forEach(p => {
+      if (elapsed < p.delay) { alive = true; return; }
+      const t = elapsed - p.delay;
+      p.x += p.vx;
+      p.vy += p.g;
+      p.y += p.vy;
+      p.r += p.rv;
+      p.vx *= 0.99;
+      if (t > 1500) p.a = Math.max(0, p.a - 0.03);
+      if (p.a <= 0) return;
+      alive = true;
+      ctx.save();
+      ctx.globalAlpha = p.a;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r * Math.PI / 180);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) requestAnimationFrame(frame);
+    else { canvas.remove(); }
+  }
+  requestAnimationFrame(frame);
 }
 
 function renderNav() {
