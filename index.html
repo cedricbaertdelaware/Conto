@@ -120,8 +120,8 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 .pos{color:#1D9E75}.neg{color:#E24B4A}
 .isec{margin-top:16px;padding-top:12px;border-top:1px solid var(--brd)}.isec h3{font-size:13px;font-weight:600;margin-bottom:8px}
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="onboard" id="onboard"><div class="ob-accent"></div><h1>Conto</h1><div class="sub">Yo, wie ben jij?</div><div class="ob-list" id="ob-list"><div style="color:var(--tx2);font-size:13px;padding:20px">Laden...</div></div></div>
@@ -146,18 +146,39 @@ const CATS={food:{l:'Fret',i:'\u{1F35D}',c:'#D85A30',bg:'#FAECE7'},drinks:{l:'Dr
 const PCOL=['#1D9E75','#534AB7','#D85A30','#185FA5','#D4537E','#639922','#BA7517','#E24B4A','#888780','#993556'];
 const LSKEY='conto_me';
 const fbCfg={apiKey:"AIzaSyDYS3oHdLUTLxSVaNS5RiPr1IX6nWyEWMQ",authDomain:"conto-expensedevider.firebaseapp.com",databaseURL:"https://conto-expensedevider-default-rtdb.europe-west1.firebasedatabase.app",projectId:"conto-expensedevider",storageBucket:"conto-expensedevider.firebasestorage.app",messagingSenderId:"662806118433",appId:"1:662806118433:web:3dfa7716c833fc708f2360"};
-firebase.initializeApp(fbCfg);const db=firebase.database(),dbP=db.ref('people'),dbE=db.ref('expenses'),dbN=db.ref('nid'),dbPay=db.ref('payments');
-let currentUser=null;try{currentUser=localStorage.getItem(LSKEY)||null}catch(e){}
+try{firebase.initializeApp(fbCfg)}catch(e){document.getElementById('ob-list').innerHTML='<div style="color:var(--neg);font-size:13px;padding:20px">Firebase init error: '+e.message+'</div>'}
+const db=firebase.database(),dbP=db.ref('people'),dbE=db.ref('expenses'),dbN=db.ref('nid'),dbPay=db.ref('payments');
+let currentUser=null;
+try{const v=localStorage.getItem(LSKEY);if(v&&v.length>0)currentUser=v}catch(e){}
 function saveMe(){try{localStorage.setItem(LSKEY,currentUser||'')}catch(e){}}
 let people=[{n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'Maat 4',iban:''},{n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}];
 let expenses=[],payments=[],nid=1,fbReady=false,filt='all',curTab='exp';
 function saveData(){dbP.set(people);dbE.set(expenses);dbN.set(nid);dbPay.set(payments)}
 function savePay(){dbPay.set(payments)}
-dbP.on('value',s=>{const v=s.val();if(v){people=Array.isArray(v)?v:Object.values(v);people=people.filter(p=>p&&p.n)}if(fbReady)render()});
-dbE.on('value',s=>{let v=s.val();expenses=v?(Array.isArray(v)?v:Object.values(v)):[];if(fbReady)render()});
+function fixArr(v){if(!v)return[];return Array.isArray(v)?v:Object.values(v)}
+function fixPeople(v){if(!v)return people;const arr=Array.isArray(v)?v:Object.values(v);const filtered=arr.filter(p=>p&&p.n);return filtered.length?filtered:people}
+
+dbP.on('value',s=>{people=fixPeople(s.val());if(fbReady)render()});
+dbE.on('value',s=>{expenses=fixArr(s.val());if(fbReady)render()});
 dbN.on('value',s=>{if(s.val())nid=s.val()});
-dbPay.on('value',s=>{let v=s.val();payments=v?(Array.isArray(v)?v:Object.values(v)):[];if(fbReady)render()});
-db.ref().once('value',s=>{const d=s.val();if(d){if(d.people){const pv=d.people;people=Array.isArray(pv)?pv:Object.values(pv);people=people.filter(p=>p&&p.n)}if(d.expenses)expenses=Array.isArray(d.expenses)?d.expenses:Object.values(d.expenses);if(d.nid)nid=d.nid;if(d.payments)payments=Array.isArray(d.payments)?d.payments:Object.values(d.payments)}fbReady=true;initApp()});
+dbPay.on('value',s=>{payments=fixArr(s.val());if(fbReady)render()});
+
+db.ref().once('value').then(s=>{
+  const d=s.val();
+  console.log('Firebase data loaded:',d);
+  if(d){
+    people=fixPeople(d.people);
+    expenses=fixArr(d.expenses);
+    if(d.nid)nid=d.nid;
+    payments=fixArr(d.payments);
+  }
+  fbReady=true;
+  initApp();
+}).catch(err=>{
+  console.error('Firebase error:',err);
+  document.getElementById('ob-list').innerHTML='<div style="color:#E24B4A;font-size:13px;padding:20px">Firebase error: '+err.message+'<br><br>Ga naar Firebase Console → Realtime Database → Rules en zet ze op:<br><code style="background:var(--bg2);padding:4px 8px;border-radius:4px;display:block;margin-top:8px;text-align:left;font-size:11px">{"rules":{".read":true,".write":true}}</code></div>';
+});
+setTimeout(()=>{if(!fbReady){document.getElementById('ob-list').innerHTML='<div style="color:var(--tx2);font-size:13px;padding:20px">Firebase reageert niet na 10 sec.<br><br>Mogelijke oorzaken:<br>• Test mode security rules zijn verlopen (na 30 dagen)<br>• Geen internetverbinding<br><br>Fix: Firebase Console → Realtime Database → Rules → publish nieuwe rules.</div>'}},10000);
 function ini(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
 function pcol(n){const i=people.findIndex(p=>p.n===n);return PCOL[(i>=0?i:0)%PCOL.length]}
 function names(){return people.map(p=>p.n)}
