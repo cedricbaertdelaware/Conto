@@ -124,7 +124,7 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
-<div class="onboard" id="onboard"><div class="ob-accent"></div><h1>Conto</h1><div class="sub">Yo, wie ben jij?</div><div class="ob-list" id="ob-list"></div></div>
+<div class="onboard" id="onboard"><div class="ob-accent"></div><h1>Conto</h1><div class="sub">Yo, wie ben jij?</div><div class="ob-list" id="ob-list"><div style="color:var(--tx2);font-size:13px;padding:20px">Laden...</div></div></div>
 <div class="app" id="app" style="display:none">
 <div class="hdr"><h1>Conto</h1><div class="hdr-av" id="hdr-av" onclick="curTab='ppl';render()"></div></div>
 <div class="main">
@@ -153,18 +153,18 @@ let people=[{n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'
 let expenses=[],payments=[],nid=1,fbReady=false,filt='all',curTab='exp';
 function saveData(){dbP.set(people);dbE.set(expenses);dbN.set(nid);dbPay.set(payments)}
 function savePay(){dbPay.set(payments)}
-dbP.on('value',s=>{if(s.val())people=s.val();if(fbReady)render()});
+dbP.on('value',s=>{const v=s.val();if(v){people=Array.isArray(v)?v:Object.values(v);people=people.filter(p=>p&&p.n)}if(fbReady)render()});
 dbE.on('value',s=>{let v=s.val();expenses=v?(Array.isArray(v)?v:Object.values(v)):[];if(fbReady)render()});
 dbN.on('value',s=>{if(s.val())nid=s.val()});
 dbPay.on('value',s=>{let v=s.val();payments=v?(Array.isArray(v)?v:Object.values(v)):[];if(fbReady)render()});
-db.ref().once('value',s=>{const d=s.val();if(d){if(d.people)people=d.people;if(d.expenses)expenses=Array.isArray(d.expenses)?d.expenses:Object.values(d.expenses);if(d.nid)nid=d.nid;if(d.payments)payments=Array.isArray(d.payments)?d.payments:Object.values(d.payments)}fbReady=true;initApp()});
+db.ref().once('value',s=>{const d=s.val();if(d){if(d.people){const pv=d.people;people=Array.isArray(pv)?pv:Object.values(pv);people=people.filter(p=>p&&p.n)}if(d.expenses)expenses=Array.isArray(d.expenses)?d.expenses:Object.values(d.expenses);if(d.nid)nid=d.nid;if(d.payments)payments=Array.isArray(d.payments)?d.payments:Object.values(d.payments)}fbReady=true;initApp()});
 function ini(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
 function pcol(n){const i=people.findIndex(p=>p.n===n);return PCOL[(i>=0?i:0)%PCOL.length]}
 function names(){return people.map(p=>p.n)}
 function getMyBal(){if(!currentUser)return 0;const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});return b[currentUser]||0}
 let _tt=null;function toast(t){const e=document.getElementById('toast');if(_tt)clearTimeout(_tt);e.classList.remove('show');void e.offsetWidth;e.textContent=t;e.classList.add('show');_tt=setTimeout(()=>{e.classList.remove('show');_tt=null},2000)}
 function initApp(){if(!currentUser)showOnboard();else startApp()}
-function showOnboard(){document.getElementById('app').style.display='none';document.getElementById('onboard').classList.remove('hide');document.getElementById('ob-list').innerHTML=names().map((n,i)=>`<div class="ob-item" onclick="pickMe(${i})"><div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]}">${ini(n)}</div>${n}</div>`).join('')}
+function showOnboard(){document.getElementById('app').style.display='none';document.getElementById('onboard').classList.remove('hide');const ppl=people.filter(p=>p&&p.n);if(!ppl.length){document.getElementById('ob-list').innerHTML='<div style="color:var(--tx2);font-size:13px;padding:20px">Geen squad gevonden. Check je verbinding.</div>';return}document.getElementById('ob-list').innerHTML=ppl.map((p,i)=>`<div class="ob-item" onclick="pickMe(${i})"><div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]}">${ini(p.n)}</div>${p.n}</div>`).join('')}
 function pickMe(i){currentUser=people[i].n;saveMe();document.getElementById('onboard').classList.add('hide');startApp();toast('Welkom '+currentUser+'!')}
 function startApp(){document.getElementById('app').style.display='';render()}
 function render(){renderNav();renderStats();document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));document.getElementById('p-'+curTab).classList.add('on');document.getElementById('hdr-av').textContent=currentUser?ini(currentUser):'?';if(curTab==='exp'){renderCats();renderList()}else if(curTab==='bal')renderBal();else if(curTab==='set'){renderSettle();renderIbans();renderPaylog()}else if(curTab==='ppl')renderPeople()}
