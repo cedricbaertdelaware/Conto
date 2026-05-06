@@ -173,7 +173,13 @@ function pcol(n){const i=people.findIndex(p=>p.n===n);return PCOL[(i>=0?i:0)%PCO
 function names(){return people.map(p=>p.n)}
 function getMyBal(){if(!currentUser)return 0;const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});return b[currentUser]||0}
 let _tt=null;function toast(t){const e=document.getElementById('toast');if(_tt)clearTimeout(_tt);e.classList.remove('show');void e.offsetWidth;e.textContent=t;e.classList.add('show');_tt=setTimeout(()=>{e.classList.remove('show');_tt=null},2000)}
-function initApp(){if(!currentUser)showOnboard();else startApp()}
+function initApp(){
+  // Validate currentUser exists in people list
+  if(currentUser && !people.find(p=>p.n===currentUser)){
+    currentUser=null;saveMe();
+  }
+  if(!currentUser)showOnboard();else startApp()
+}
 function showOnboard(){document.getElementById('app').style.display='none';document.getElementById('onboard').classList.remove('hide');const ppl=people.filter(p=>p&&p.n);if(!ppl.length){document.getElementById('ob-list').innerHTML='<div style="color:var(--tx2);font-size:13px;padding:20px">Geen squad gevonden. Check je verbinding.</div>';return}document.getElementById('ob-list').innerHTML=ppl.map((p,i)=>`<div class="ob-item" onclick="pickMe(${i})"><div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]}">${ini(p.n)}</div>${p.n}</div>`).join('')}
 function pickMe(i){currentUser=people[i].n;saveMe();document.getElementById('onboard').classList.add('hide');startApp();toast('Welkom '+currentUser+'!')}
 function startApp(){document.getElementById('app').style.display='';render()}
