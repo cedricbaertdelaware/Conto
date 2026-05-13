@@ -149,8 +149,7 @@ const fbCfg={apiKey:"AIzaSyDYS3oHdLUTLxSVaNS5RiPr1IX6nWyEWMQ",authDomain:"conto-
 try{firebase.initializeApp(fbCfg)}catch(e){document.getElementById('ob-list').innerHTML='<div style="color:var(--neg);font-size:13px;padding:20px">Firebase init error: '+e.message+'</div>'}
 const db=firebase.database(),dbP=db.ref('people'),dbE=db.ref('expenses'),dbN=db.ref('nid'),dbPay=db.ref('payments');
 let currentUser=null;
-try{const v=localStorage.getItem(LSKEY);if(v&&v.length>0)currentUser=v}catch(e){}
-function saveMe(){try{localStorage.setItem(LSKEY,currentUser||'')}catch(e){}}
+function saveMe(){}
 let people=[{n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'Maat 4',iban:''},{n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}];
 let expenses=[],payments=[],nid=1,fbReady=false,filt='all',curTab='exp';
 function saveData(){dbP.set(people);dbE.set(expenses);dbN.set(nid);dbPay.set(payments)}
@@ -182,7 +181,7 @@ function initApp(){
 }
 function showOnboard(){document.getElementById('app').style.display='none';document.getElementById('onboard').classList.remove('hide');const ppl=people.filter(p=>p&&p.n);if(!ppl.length){document.getElementById('ob-list').innerHTML='<div style="color:var(--tx2);font-size:13px;padding:20px">Geen squad gevonden. Check je verbinding.</div>';return}document.getElementById('ob-list').innerHTML=ppl.map((p,i)=>`<div class="ob-item" onclick="pickMe(${i})"><div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]}">${ini(p.n)}</div>${p.n}</div>`).join('')}
 function pickMe(i){currentUser=people[i].n;saveMe();document.getElementById('onboard').classList.add('hide');startApp();toast('Welkom '+currentUser+'!')}
-function startApp(){document.getElementById('app').style.display='';render()}
+function startApp(){document.getElementById('onboard').classList.add('hide');document.getElementById('app').style.display='';render()}
 function render(){renderNav();renderStats();document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));document.getElementById('p-'+curTab).classList.add('on');document.getElementById('hdr-av').textContent=currentUser?ini(currentUser):'?';if(curTab==='exp'){renderCats();renderList()}else if(curTab==='bal')renderBal();else if(curTab==='set'){renderSettle();renderIbans();renderPaylog()}else if(curTab==='ppl')renderPeople()}
 function renderNav(){const tabs=[['exp','\u{1F4B0}','Uitgaven'],['bal','\u2696\uFE0F','Wie is blut'],['set','\u{1F4B8}','Time to pay'],['ppl','\u{1F465}','De squad']];document.getElementById('bnav').innerHTML=tabs.map(([k,ic,l])=>`<button class="bnav-item${curTab===k?' on':''}" data-t="${k}"><span class="ni">${ic}</span>${l}</button>`).join('');document.querySelectorAll('.bnav-item').forEach(b=>b.onclick=()=>{curTab=b.dataset.t;render()})}
 function renderStats(){const tot=expenses.reduce((s,e)=>s+e.a,0);const mb=getMyBal();const mc=mb>=0?'pos':'neg';const ml=currentUser?(mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'):'Kies wie je bent';const mv=currentUser?`${mb>=0?'+':''}\u20AC${Math.abs(Math.round(mb)).toLocaleString('nl-BE')}`:'\u2014';document.getElementById('stats2').innerHTML=`<div class="st2"><div class="sl">Totaal schade</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div><div class="st2 me" id="st-me"><div class="sl">${ml}</div><div class="sv ${mc}">${mv}</div></div>`;document.getElementById('st-me').onclick=()=>handleStatTap()}
