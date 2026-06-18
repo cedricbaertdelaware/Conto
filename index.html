@@ -455,12 +455,6 @@ function renderHottie(){
   const ov=document.getElementById('hottie-ov');
   // Sort hotties by avg
   const sorted=HOTTIES.map((h,i)=>({name:h,idx:i,avg:getHottieAvg(i)})).sort((a,b)=>b.avg-a.avg);
-  // Get all raters who have given any score
-  const allRaters=new Set();
-  Object.keys(ratings).forEach(r=>{
-    HOTTIES.forEach((h,i)=>{if(ratings[r]&&ratings[r][i])allRaters.add(r)})
-  });
-  const raterList=[...allRaters];
 
   const cards=sorted.map((h,rank)=>{
     const photo=photos[h.idx];
@@ -473,12 +467,7 @@ function renderHottie(){
       const catAvg=getCatAvg(h.idx,cat);
       const catAvgTxt=catAvg>0?catAvg.toFixed(1):'\u2014';
       const stars=[1,2,3,4,5].map(s=>`<span class="hottie-star${myScore>=s?' on':''}" data-h="${h.idx}" data-c="${cat}" data-s="${s}">\u2605</span>`).join('');
-      // Other raters' scores
-      const othersHtml=raterList.filter(r=>r!==currentUser).map(r=>{
-        const sc=(ratings[r]&&ratings[r][h.idx]&&ratings[r][h.idx][cat])||0;
-        return sc>0?`<span style="font-size:10px;color:var(--tx3);margin-left:4px">${r.split(' ')[0]}: ${sc}\u2605</span>`:'';
-      }).filter(x=>x).join('');
-      return`<div class="hottie-cat"><span class="hc-label">${cat}</span><div class="hottie-stars">${stars}</div>${othersHtml}<span class="hc-avg">${catAvgTxt}</span></div>`;
+      return`<div class="hottie-cat"><span class="hc-label">${cat}</span><div class="hottie-stars">${stars}</div><span class="hc-avg">${catAvgTxt}</span></div>`;
     }).join('');
 
     return`<div class="hottie-card"><div class="hottie-rank">#${rank+1}</div><div class="hottie-top"><div class="hottie-photo" data-upload="${h.idx}">${photoHtml}</div><div><div class="hottie-name">${h.name}</div><div class="hottie-avg">${avgDisplay}</div></div></div>${catsHtml}</div>`;
