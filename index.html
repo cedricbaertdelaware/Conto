@@ -409,6 +409,7 @@ document.getElementById('ppl-add').onclick=addPerson;
 
 // Hottie Ranker easter egg — 5 taps on Conto logo
 const HCATS=['Hoofd','Borsten','Billen','Style'];
+const HOTTIES=['Hottie 1','Hottie 2','Hottie 3'];
 let _htaps=0,_htimer=null;
 document.getElementById('hdr-logo').onclick=()=>{
   _htaps++;if(_htimer)clearTimeout(_htimer);
@@ -422,56 +423,75 @@ function showHottie(){
   fireConfetti();
 }
 function closeHottie(){document.getElementById('hottie-ov').classList.remove('open')}
+function getHottieAvg(hIdx){
+  let total=0,cnt=0;
+  Object.entries(ratings).forEach(([rater,data])=>{
+    if(!data||!data[hIdx])return;
+    HCATS.forEach(c=>{if(data[hIdx][c]){total+=data[hIdx][c];cnt++}})
+  });
+  return cnt>0?total/cnt:0;
+}
+function getCatAvg(hIdx,cat){
+  let sum=0,cnt=0;
+  Object.entries(ratings).forEach(([rater,data])=>{
+    if(!data||!data[hIdx]||!data[hIdx][cat])return;
+    sum+=data[hIdx][cat];cnt++;
+  });
+  return cnt>0?sum/cnt:0;
+}
 function renderHottie(){
   const ov=document.getElementById('hottie-ov');
-  const ppl=names();
-  // Calc averages
-  const avgs={};
-  ppl.forEach(n=>{avgs[n]={total:0,count:0,cats:{}};HCATS.forEach(c=>avgs[n].cats[c]={sum:0,cnt:0})});
-  Object.entries(ratings).forEach(([rater,targets])=>{
-    if(!targets)return;
-    Object.entries(targets).forEach(([target,cats])=>{
-      if(!avgs[target]||!cats)return;
-      Object.entries(cats).forEach(([cat,score])=>{
-        if(avgs[target].cats[cat]){avgs[target].cats[cat].sum+=score;avgs[target].cats[cat].cnt++}
-      })
-    })
+  // Sort hotties by avg
+  const sorted=HOTTIES.map((h,i)=>({name:h,idx:i,avg:getHottieAvg(i)})).sort((a,b)=>b.avg-a.avg);
+  // Get all raters who have given any score
+  const allRaters=new Set();
+  Object.keys(ratings).forEach(r=>{
+    HOTTIES.forEach((h,i)=>{if(ratings[r]&&ratings[r][i])allRaters.add(r)})
   });
-  ppl.forEach(n=>{
-    let tsum=0,tcnt=0;
-    HCATS.forEach(c=>{const d=avgs[n].cats[c];if(d.cnt>0){tsum+=d.sum/d.cnt;tcnt++}});
-    avgs[n].total=tcnt>0?tsum/tcnt:0;
-  });
-  const sorted=[...ppl].sort((a,b)=>avgs[b].total-avgs[a].total);
-  const myRatings=ratings[currentUser]||{};
-  const cards=sorted.map((n,rank)=>{
-    const avg=avgs[n];const photo=photos[n];const mr=myRatings[n]||{};
-    const photoHtml=photo?`<img src="${photo}" alt="">`:`<div class="hp-placeholder">Foto</div>`;
-    const catsHtml=HCATS.map(c=>{
-      const myScore=mr[c]||0;
-      const catAvg=avg.cats[c].cnt>0?(avg.cats[c].sum/avg.cats[c].cnt).toFixed(1):'—';
-      const stars=[1,2,3,4,5].map(s=>`<span class="hottie-star${myScore>=s?' on':''}" data-n="${n}" data-c="${c}" data-s="${s}">\u2605</span>`).join('');
-      return`<div class="hottie-cat"><span class="hc-label">${c}</span><div class="hottie-stars">${stars}</div><span class="hc-avg">${catAvg}</span></div>`;
+  const raterList=[...allRaters];
+
+  const cards=sorted.map((h,rank)=>{
+    const photo=photos[h.idx];
+    const myScores=(ratings[currentUser]&&ratings[currentUser][h.idx])||{};
+    const photoHtml=photo?`<img src="${photo}" alt="">`:`<div class="hp-placeholder">+ Foto</div>`;
+    const avgDisplay=h.avg>0?h.avg.toFixed(1):'\u2014';
+
+    const catsHtml=HCATS.map(cat=>{
+      const myScore=myScores[cat]||0;
+      const catAvg=getCatAvg(h.idx,cat);
+      const catAvgTxt=catAvg>0?catAvg.toFixed(1):'\u2014';
+      const stars=[1,2,3,4,5].map(s=>`<span class="hottie-star${myScore>=s?' on':''}" data-h="${h.idx}" data-c="${cat}" data-s="${s}">\u2605</span>`).join('');
+      // Other raters' scores
+      const othersHtml=raterList.filter(r=>r!==currentUser).map(r=>{
+        const sc=(ratings[r]&&ratings[r][h.idx]&&ratings[r][h.idx][cat])||0;
+        return sc>0?`<span style="font-size:10px;color:var(--tx3);margin-left:4px">${r.split(' ')[0]}: ${sc}\u2605</span>`:'';
+      }).filter(x=>x).join('');
+      return`<div class="hottie-cat"><span class="hc-label">${cat}</span><div class="hottie-stars">${stars}</div>${othersHtml}<span class="hc-avg">${catAvgTxt}</span></div>`;
     }).join('');
-    const totalAvg=avg.total>0?avg.total.toFixed(1):'—';
-    const safeN=n.replace(/'/g,"\\'");
-    return`<div class="hottie-card"><div class="hottie-rank">#${rank+1}</div><div class="hottie-top"><div class="hottie-photo" onclick="uploadHottiePhoto('${safeN}')">${photoHtml}</div><div><div class="hottie-name">${n}</div><div class="hottie-avg">${totalAvg}</div></div></div>${catsHtml}</div>`;
+
+    return`<div class="hottie-card"><div class="hottie-rank">#${rank+1}</div><div class="hottie-top"><div class="hottie-photo" data-upload="${h.idx}">${photoHtml}</div><div><div class="hottie-name">${h.name}</div><div class="hottie-avg">${avgDisplay}</div></div></div>${catsHtml}</div>`;
   }).join('');
+
   ov.innerHTML=`<div class="add-topbar"><div class="atb-back" onclick="closeHottie()">\u2190</div><div class="atb-title">Hottie Ranker \u{1F525}</div><div style="width:28px"></div></div><div class="hottie-body">${cards}</div>`;
+
   // Star click delegation
   ov.querySelectorAll('.hottie-star').forEach(star=>{
     star.onclick=(e)=>{
       e.stopPropagation();
-      const n=star.dataset.n,c=star.dataset.c,s=parseInt(star.dataset.s);
+      const hIdx=parseInt(star.dataset.h),cat=star.dataset.c,score=parseInt(star.dataset.s);
       if(!ratings[currentUser])ratings[currentUser]={};
-      if(!ratings[currentUser][n])ratings[currentUser][n]={};
-      ratings[currentUser][n][c]=s;
+      if(!ratings[currentUser][hIdx])ratings[currentUser][hIdx]={};
+      ratings[currentUser][hIdx][cat]=score;
       saveRatings();
       renderHottie();
     }
   });
+  // Photo upload delegation
+  ov.querySelectorAll('.hottie-photo').forEach(ph=>{
+    ph.onclick=()=>uploadHottiePhoto(parseInt(ph.dataset.upload));
+  });
 }
-function uploadHottiePhoto(name){
+function uploadHottiePhoto(idx){
   const inp=document.createElement('input');
   inp.type='file';inp.accept='image/*';inp.capture='environment';
   inp.onchange=()=>{
@@ -487,8 +507,7 @@ function uploadHottiePhoto(name){
         if(h>maxH){w=w*(maxH/h);h=maxH}
         canvas.width=w;canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const compressed=canvas.toDataURL('image/jpeg',0.5);
-        photos[name]=compressed;
+        photos[idx]=canvas.toDataURL('image/jpeg',0.5);
         savePhotos();
         renderHottie();
         toast('Foto opgeslagen!');
