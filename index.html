@@ -12,7 +12,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ac:#1D9E75;--ac-l:#E1F5EE;--ac-d:#0F6E56;--neg:#E24B4A;--bg:#fff;--bg2:#f5f5f3;--tx:#1a1a1a;--tx2:#6b6b6b;--tx3:#999;--brd:rgba(0,0,0,0.08);--brd2:rgba(0,0,0,0.16);--r:10px;--rl:14px;--f:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;--mono:'SF Mono',Menlo,Consolas,monospace}
-@media(prefers-color-scheme:dark){:root{--bg:#1a1a1a;--bg2:#252525;--tx:#e8e8e8;--tx2:#999;--tx3:#666;--brd:rgba(255,255,255,0.08);--brd2:rgba(255,255,255,0.16);--ac-l:#0a3d2e;--ac-d:#5DCAA5}}
+.dark{--bg:#1a1a1a;--bg2:#252525;--tx:#e8e8e8;--tx2:#999;--tx3:#666;--brd:rgba(255,255,255,0.08);--brd2:rgba(255,255,255,0.16);--ac-l:#0a3d2e;--ac-d:#5DCAA5}
 body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highlight-color:transparent;overscroll-behavior-x:none;padding-bottom:calc(60px + env(safe-area-inset-bottom,0))}
 .app{max-width:480px;margin:0 auto;min-height:100dvh}
 .main{padding-bottom:8px}
@@ -199,7 +199,7 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 <body>
 <div class="onboard" id="onboard"><div class="ob-accent"></div><h1>Conto</h1><div class="sub">Yo, wie ben jij?</div><div class="ob-list" id="ob-list"><div style="color:var(--tx2);font-size:13px;padding:20px">Laden...</div></div></div>
 <div class="app" id="app" style="display:none">
-<div class="hdr"><h1 id="hdr-logo">Conto</h1><div class="hdr-av" id="hdr-av" onclick="curTab='ppl';render()"></div></div>
+<div class="hdr"><h1 id="hdr-logo">Conto</h1><div style="display:flex;align-items:center;gap:8px"><div id="theme-toggle" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;background:var(--bg2);-webkit-user-select:none" onclick="toggleTheme()">🌙</div><div class="hdr-av" id="hdr-av" onclick="curTab='ppl';render()"></div></div></div>
 <div class="main">
 <div class="stats2" id="stats2"></div>
 <div class="add-bar" id="add-bar"><div class="ab-plus">+</div><div class="ab-txt">Drop een uitgave</div></div>
@@ -225,6 +225,18 @@ try{firebase.initializeApp(fbCfg)}catch(e){document.getElementById('ob-list').in
 const db=firebase.database(),dbP=db.ref('people'),dbE=db.ref('expenses'),dbN=db.ref('nid'),dbPay=db.ref('payments'),dbRat=db.ref('ratings'),dbPhotos=db.ref('photos');
 let currentUser=null;
 function saveMe(){}
+
+// Theme
+let isDark=false;
+try{isDark=localStorage.getItem('conto_dark')==='true'}catch(e){}
+function applyTheme(){
+  if(isDark)document.documentElement.classList.add('dark');
+  else document.documentElement.classList.remove('dark');
+  const btn=document.getElementById('theme-toggle');
+  if(btn)btn.textContent=isDark?'\u2600\uFE0F':'\u{1F319}';
+}
+function toggleTheme(){isDark=!isDark;try{localStorage.setItem('conto_dark',isDark)}catch(e){}applyTheme()}
+applyTheme();
 let people=[{n:'Cédric',iban:''},{n:'Maat 2',iban:''},{n:'Maat 3',iban:''},{n:'Maat 4',iban:''},{n:'Maat 5',iban:''},{n:'Maat 6',iban:''},{n:'Maat 7',iban:''},{n:'Maat 8',iban:''}];
 let expenses=[],payments=[],nid=1,fbReady=false,filt='all',curTab='exp';
 let ratings={},photos={};
