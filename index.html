@@ -77,6 +77,45 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 .you-tag{font-size:10px;color:var(--ac-d);background:var(--ac-l);padding:2px 6px;border-radius:4px;font-weight:600}
 .split-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:var(--r);border:1px solid var(--brd2);cursor:pointer;font-size:13px;margin-bottom:10px}
 .split-row .sr-val{font-weight:500;color:var(--ac-d)}
+
+/* Fullscreen add expense */
+.add-ov{position:fixed;inset:0;background:var(--bg);z-index:70;display:none;flex-direction:column}
+.add-ov.open{display:flex;animation:slideIn .2s ease-out}
+.add-topbar{display:flex;align-items:center;padding:10px 16px;gap:8px;flex-shrink:0}
+.add-topbar .atb-back{font-size:22px;color:var(--ac-d);cursor:pointer;padding:4px}
+.add-topbar .atb-title{flex:1;text-align:center;font-size:16px;font-weight:600}
+.add-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 12px 16px}
+.add-sec{background:var(--bg2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.add-sec .as-label{font-size:11px;color:var(--tx2);margin-bottom:6px;font-weight:500}
+.add-title-row{display:flex;align-items:center;gap:8px}
+.add-title-row input{flex:1;font-size:15px;font-weight:500;border:none;background:none;color:var(--tx);outline:none;font-family:var(--f);padding:0}
+.add-title-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.add-amt input{font-size:26px;font-weight:600;border:none;background:none;color:var(--tx);outline:none;font-family:var(--f);padding:0;width:100%}
+.add-cat-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.add-cat-row::-webkit-scrollbar{display:none}
+.add-avatars{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 0}.add-avatars::-webkit-scrollbar{display:none}
+.av-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-user-select:none;flex-shrink:0}
+.av-circ{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2.5px solid transparent;transition:all .12s}
+.av-circ.on{border-color:var(--ac);background:var(--ac-l);color:var(--ac-d)}
+.av-circ.off{background:var(--bg);color:var(--tx2)}
+.av-nm{font-size:10px;color:var(--tx2);max-width:48px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-nm.on{color:var(--ac-d);font-weight:500}
+.mode-toggle{display:flex;gap:3px;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:10px}
+.mode-btn{flex:1;text-align:center;padding:7px 0;border-radius:8px;font-size:12px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .12s;border:none;background:none;font-family:var(--f)}
+.mode-btn.on{background:var(--ac);color:#fff}
+.eq-hint{font-size:12px;color:var(--tx2);margin-top:8px;text-align:center}
+.exact-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--brd)}
+.exact-row:last-of-type{border-bottom:none}
+.exact-name{font-size:13px;font-weight:500;flex:1}
+.exact-input{width:80px;text-align:right;font-size:14px;font-weight:500;border:none;background:var(--bg);border-radius:8px;padding:7px 10px;color:var(--tx);font-family:var(--f);outline:none}
+.exact-input:focus{box-shadow:0 0 0 2px var(--ac-l)}
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:6px;border-top:1px solid var(--brd2)}
+.total-bar .tl{font-size:12px;color:var(--tx2)}
+.total-bar .tv{font-size:13px;font-weight:600}
+.total-bar .tv.ok{color:var(--ac)}
+.total-bar .tv.err{color:var(--neg)}
+.val-msg{font-size:11px;color:var(--neg);text-align:center;margin-top:6px}
+.add-save{padding:12px;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom,0))}
+.add-save .save-btn.disabled{opacity:.4;pointer-events:none}
 .save-btn{width:100%;padding:13px;border-radius:var(--r);background:var(--ac);border:none;color:#fff;font-size:14px;font-weight:600;font-family:var(--f);cursor:pointer;transition:background .1s}
 .save-btn:active{background:var(--ac-d)}
 .btn-row{display:flex;gap:6px;margin-top:6px}
@@ -148,6 +187,7 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 <div class="bnav" id="bnav"></div>
 </div>
 <div class="mo" id="mo"><div class="ms" id="ms"></div></div>
+<div class="add-ov" id="add-ov"></div>
 <div class="dtl" id="dtl"></div>
 <div class="chart-ov" id="chart-ov"></div>
 <div class="toast" id="toast"></div>
@@ -180,7 +220,7 @@ setTimeout(()=>{if(!fbReady){fbReady=true;initApp();console.log('Firebase timeou
 function ini(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
 function pcol(n){const i=people.findIndex(p=>p.n===n);return PCOL[(i>=0?i:0)%PCOL.length]}
 function names(){return people.map(p=>p.n)}
-function getMyBal(){if(!currentUser)return 0;const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});return b[currentUser]||0}
+function getMyBal(){if(!currentUser)return 0;const b=calcBal();return b[currentUser]||0}
 let _tt=null;function toast(t){const e=document.getElementById('toast');if(_tt)clearTimeout(_tt);e.classList.remove('show');void e.offsetWidth;e.textContent=t;e.classList.add('show');_tt=setTimeout(()=>{e.classList.remove('show');_tt=null},2000)}
 function initApp(){
   // Validate currentUser exists in people list
@@ -197,9 +237,10 @@ function renderNav(){const tabs=[['exp','\u{1F4B0}','Uitgaven'],['bal','\u2696\u
 function renderStats(){const tot=expenses.reduce((s,e)=>s+e.a,0);const mb=getMyBal();const mc=mb>=0?'pos':'neg';const ml=currentUser?(mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'):'Kies wie je bent';const mv=currentUser?`${mb>=0?'+':''}\u20AC${Math.abs(Math.round(mb)).toLocaleString('nl-BE')}`:'\u2014';document.getElementById('stats2').innerHTML=`<div class="st2"><div class="sl">Totaal schade</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div><div class="st2 me" id="st-me"><div class="sl">${ml}</div><div class="sv ${mc}">${mv}</div></div>`;document.getElementById('st-me').onclick=()=>handleStatTap()}
 let _staps=0,_stimer=null;function handleStatTap(){if(!currentUser){curTab='ppl';render();return}_staps++;if(_stimer)clearTimeout(_stimer);_stimer=setTimeout(()=>{_staps=0},800);if(_staps>=5){_staps=0;showChart()}}
 function renderCats(){let h=`<div class="cpill${filt==='all'?' on':''}" data-c="all">Alles</div>`;Object.entries(CATS).forEach(([k,v])=>{if(expenses.some(e=>e.cat===k))h+=`<div class="cpill${filt===k?' on':''}" data-c="${k}">${v.i} ${v.l}</div>`});const el=document.getElementById('cpills');el.innerHTML=h;el.querySelectorAll('.cpill').forEach(c=>c.onclick=()=>{filt=c.dataset.c;render()})}
-function renderList(){const f=filt==='all'?expenses:expenses.filter(e=>e.cat===filt);const el=document.getElementById('elist');if(!f.length){el.innerHTML=`<div class="empty"><p>Niks hier broer. Drop je eerste uitgave!</p></div>`;return}const sorted=[...f].sort((a,b)=>(b.dt||'').localeCompare(a.dt||''));const groups={};sorted.forEach(e=>{const d=e.dt||'?';if(!groups[d])groups[d]=[];groups[d].push(e)});const today=new Date().toISOString().slice(0,10),yest=new Date(Date.now()-864e5).toISOString().slice(0,10);let html='';Object.entries(groups).forEach(([d,items])=>{let label=d===today?'Vandaag':d===yest?'Gisteren':d;html+=`<div class="day-lbl">${label}</div>`;items.forEach(e=>{const c=CATS[e.cat]||CATS.other;html+=`<div class="ei" data-id="${e.id}"><div class="eic" style="background:${c.bg};color:${c.c}">${c.i}</div><div class="einfo"><div class="et">${e.d}</div><div class="em">${e.payer} \xB7 ${e.split.length}p</div></div><div class="eamt"><div class="ev">\u20AC${e.a.toFixed(2)}</div></div></div>`})});el.innerHTML=html;el.querySelectorAll('.ei').forEach(i=>i.onclick=()=>showDtl(+i.dataset.id))}
-function renderBal(){const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});const mb=currentUser?(b[currentUser]||0):0;const mc=mb>=0?'pos':'neg';document.getElementById('bal-hero').innerHTML=currentUser?`<div style="font-size:12px;color:var(--tx2)">${mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'}</div><div class="bh-val ${mc}">${mb>=0?'+':''}\u20AC${Math.abs(mb).toFixed(2)}</div>`:`<div style="font-size:12px;color:var(--tx2)">Kies wie je bent bij De squad</div>`;const mx=Math.max(...Object.values(b).map(Math.abs),1);document.getElementById('blist').innerHTML=names().map(n=>{const v=b[n]||0;const cls=v>=0?'pos':'neg';const pct=Math.abs(v)/mx*100;const bc=v>=0?'#1D9E75':'#E24B4A';return`<div class="bi"><div class="bav" style="background:${pcol(n)}20;color:${pcol(n)}">${ini(n)}</div><div class="bn">${n}</div><div class="bbar"><div class="bbf" style="width:${pct}%;background:${bc}"></div></div><div class="bv ${cls}">${v>=0?'+':''}\u20AC${Math.abs(v).toFixed(2)}</div></div>`}).join('')}
-function renderSettle(){const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});const dbt=names().filter(n=>b[n]<-0.01).map(n=>({n,a:b[n]})).sort((a,c)=>a.a-c.a);const crd=names().filter(n=>b[n]>0.01).map(n=>({n,a:b[n]})).sort((a,c)=>c.a-a.a);const stl=[];let di=0,ci=0;while(di<dbt.length&&ci<crd.length){const am=Math.min(-dbt[di].a,crd[ci].a);if(am>0.01)stl.push({f:dbt[di].n,t:crd[ci].n,a:am});dbt[di].a+=am;crd[ci].a-=am;if(Math.abs(dbt[di].a)<0.01)di++;if(Math.abs(crd[ci].a)<0.01)ci++}const el=document.getElementById('slist');let html='';if(stl.length){html+=`<div class="sec-lbl">Openstaand</div>`;html+=stl.map(s=>{const ef=s.f.replace(/'/g,"\\'"),et=s.t.replace(/'/g,"\\'");return`<div class="si"><div class="bav" style="background:${pcol(s.f)}20;color:${pcol(s.f)};width:24px;height:24px;font-size:9px">${ini(s.f)}</div><span>${s.f}</span><span class="sarr">\u2192</span><span>${s.t}</span><div class="bav" style="background:${pcol(s.t)}20;color:${pcol(s.t)};width:24px;height:24px;font-size:9px">${ini(s.t)}</div><span class="sa">\u20AC${s.a.toFixed(2)}</span><button class="pbtn pbtn-pay" onclick="event.stopPropagation();markPaid('${ef}','${et}',${s.a})">Betaal</button></div>`}).join('')}if(payments.length){html+=`<div class="sec-lbl">Afgehandeld</div>`;html+=payments.map((pm,i)=>`<div class="si done"><div class="bav" style="background:${pcol(pm.f)}20;color:${pcol(pm.f)};width:24px;height:24px;font-size:9px">${ini(pm.f)}</div><span>${pm.f}</span><span class="sarr">\u2192</span><span>${pm.t}</span><div class="bav" style="background:${pcol(pm.t)}20;color:${pcol(pm.t)};width:24px;height:24px;font-size:9px">${ini(pm.t)}</div><span class="sa">\u20AC${pm.a.toFixed(2)}</span><button class="pbtn pbtn-undo" onclick="event.stopPropagation();undoPay(${i})">Undo</button></div>`).join('')}if(!stl.length&&!payments.length)html=`<div class="empty"><p>Iedereen is clean, wallah!</p></div>`;else if(!stl.length)html=`<div class="empty"><p>Alles betaald, nice!</p></div>`+html;el.innerHTML=html}
+function renderList(){const f=filt==='all'?expenses:expenses.filter(e=>e.cat===filt);const el=document.getElementById('elist');if(!f.length){el.innerHTML=`<div class="empty"><p>Niks hier broer. Drop je eerste uitgave!</p></div>`;return}const sorted=[...f].sort((a,b)=>(b.dt||'').localeCompare(a.dt||''));const groups={};sorted.forEach(e=>{const d=e.dt||'?';if(!groups[d])groups[d]=[];groups[d].push(e)});const today=new Date().toISOString().slice(0,10),yest=new Date(Date.now()-864e5).toISOString().slice(0,10);let html='';Object.entries(groups).forEach(([d,items])=>{let label=d===today?'Vandaag':d===yest?'Gisteren':d;html+=`<div class="day-lbl">${label}</div>`;items.forEach(e=>{const c=CATS[e.cat]||CATS.other;const isEx=e.splitMode==='exact';html+=`<div class="ei" data-id="${e.id}"><div class="eic" style="background:${c.bg};color:${c.c}">${c.i}</div><div class="einfo"><div class="et">${e.d}</div><div class="em">${e.payer} \xB7 ${e.split.length}p${isEx?' \xB7 exact':''}</div></div><div class="eamt"><div class="ev">\u20AC${e.a.toFixed(2)}</div></div></div>`})});el.innerHTML=html;el.querySelectorAll('.ei').forEach(i=>i.onclick=()=>showDtl(+i.dataset.id))}
+function calcBal(){const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;if(e.splitMode==='exact'&&e.splitAmounts){Object.entries(e.splitAmounts).forEach(([p,v])=>{if(b[p]!==undefined)b[p]-=(parseFloat(v)||0)})}else{const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})}});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});return b}
+function renderBal(){const b=calcBal();const mb=currentUser?(b[currentUser]||0):0;const mc=mb>=0?'pos':'neg';document.getElementById('bal-hero').innerHTML=currentUser?`<div style="font-size:12px;color:var(--tx2)">${mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'}</div><div class="bh-val ${mc}">${mb>=0?'+':''}\u20AC${Math.abs(mb).toFixed(2)}</div>`:`<div style="font-size:12px;color:var(--tx2)">Kies wie je bent bij De squad</div>`;const mx=Math.max(...Object.values(b).map(Math.abs),1);document.getElementById('blist').innerHTML=names().map(n=>{const v=b[n]||0;const cls=v>=0?'pos':'neg';const pct=Math.abs(v)/mx*100;const bc=v>=0?'#1D9E75':'#E24B4A';return`<div class="bi"><div class="bav" style="background:${pcol(n)}20;color:${pcol(n)}">${ini(n)}</div><div class="bn">${n}</div><div class="bbar"><div class="bbf" style="width:${pct}%;background:${bc}"></div></div><div class="bv ${cls}">${v>=0?'+':''}\u20AC${Math.abs(v).toFixed(2)}</div></div>`}).join('')}
+function renderSettle(){const b=calcBal();const dbt=names().filter(n=>b[n]<-0.01).map(n=>({n,a:b[n]})).sort((a,c)=>a.a-c.a);const crd=names().filter(n=>b[n]>0.01).map(n=>({n,a:b[n]})).sort((a,c)=>c.a-a.a);const stl=[];let di=0,ci=0;while(di<dbt.length&&ci<crd.length){const am=Math.min(-dbt[di].a,crd[ci].a);if(am>0.01)stl.push({f:dbt[di].n,t:crd[ci].n,a:am});dbt[di].a+=am;crd[ci].a-=am;if(Math.abs(dbt[di].a)<0.01)di++;if(Math.abs(crd[ci].a)<0.01)ci++}const el=document.getElementById('slist');let html='';if(stl.length){html+=`<div class="sec-lbl">Openstaand</div>`;html+=stl.map(s=>{const ef=s.f.replace(/'/g,"\\'"),et=s.t.replace(/'/g,"\\'");return`<div class="si"><div class="bav" style="background:${pcol(s.f)}20;color:${pcol(s.f)};width:24px;height:24px;font-size:9px">${ini(s.f)}</div><span>${s.f}</span><span class="sarr">\u2192</span><span>${s.t}</span><div class="bav" style="background:${pcol(s.t)}20;color:${pcol(s.t)};width:24px;height:24px;font-size:9px">${ini(s.t)}</div><span class="sa">\u20AC${s.a.toFixed(2)}</span><button class="pbtn pbtn-pay" onclick="event.stopPropagation();markPaid('${ef}','${et}',${s.a})">Betaal</button></div>`}).join('')}if(payments.length){html+=`<div class="sec-lbl">Afgehandeld</div>`;html+=payments.map((pm,i)=>`<div class="si done"><div class="bav" style="background:${pcol(pm.f)}20;color:${pcol(pm.f)};width:24px;height:24px;font-size:9px">${ini(pm.f)}</div><span>${pm.f}</span><span class="sarr">\u2192</span><span>${pm.t}</span><div class="bav" style="background:${pcol(pm.t)}20;color:${pcol(pm.t)};width:24px;height:24px;font-size:9px">${ini(pm.t)}</div><span class="sa">\u20AC${pm.a.toFixed(2)}</span><button class="pbtn pbtn-undo" onclick="event.stopPropagation();undoPay(${i})">Undo</button></div>`).join('')}if(!stl.length&&!payments.length)html=`<div class="empty"><p>Iedereen is clean, wallah!</p></div>`;else if(!stl.length)html=`<div class="empty"><p>Alles betaald, nice!</p></div>`+html;el.innerHTML=html}
 function markPaid(f,t,a){payments.push({f,t,a:Math.round(a*100)/100,dt:new Date().toISOString().slice(0,10)});savePay();render();toast(f+' \u2192 '+t+' betaald!')}
 function undoPay(i){payments.splice(i,1);savePay();render();toast('Teruggedraaid!')}
 function renderIbans(){const el=document.getElementById('iban-list');const w=people.filter(p=>p.iban);if(!w.length){el.innerHTML=`<div style="font-size:11px;color:var(--tx2)">Nog geen IBAN's. Fix bij De squad.</div>`;return}el.innerHTML=w.map(p=>`<div class="iban-row"><div class="bav" style="background:${pcol(p.n)}20;color:${pcol(p.n)};width:22px;height:22px;font-size:9px">${ini(p.n)}</div><span class="ibn">${p.n}</span><span class="ibv">${p.iban}</span><button class="ibcopy" onclick="copyIban('${p.n.replace(/'/g,"\\'")}')">Kopieer</button></div>`).join('')}
@@ -213,13 +254,114 @@ function editPerson(i){const p=people[i],ms=document.getElementById('ms');ms.inn
 function savePerson(i){const nn=document.getElementById('ep-n').value.trim(),ni=document.getElementById('ep-ib').value.trim().toUpperCase();if(!nn)return;const old=people[i].n;people[i].n=nn;people[i].iban=ni;if(currentUser===old){currentUser=nn;saveMe()}expenses.forEach(e=>{if(e.payer===old)e.payer=nn;e.split=e.split.map(s=>s===old?nn:s)});payments.forEach(pm=>{if(pm.f===old)pm.f=nn;if(pm.t===old)pm.t=nn});closeMo();saveData();render();toast('Gefixt!')}
 function addPerson(){const ms=document.getElementById('ms');ms.innerHTML=`<h2>Nieuwe broeder<span onclick="closeMo()">Laat maar</span></h2><div class="fg"><label>Naam</label><input id="ep-n" placeholder="Naam"></div><div class="fg"><label>IBAN</label><input id="ep-ib" placeholder="BE00 0000 0000 0000" style="font-family:var(--mono)"></div><div class="btn-row"><button class="btn-sec" onclick="closeMo()">Nee toch</button><button class="save-btn" onclick="saveNewP()">Erbij!</button></div>`;document.getElementById('mo').classList.add('open')}
 function saveNewP(){const nn=document.getElementById('ep-n').value.trim(),ni=document.getElementById('ep-ib').value.trim().toUpperCase();if(!nn)return;people.push({n:nn,iban:ni});closeMo();saveData();render();toast(nn+' zit erbij swa!')}
-function openAdd(eid){const isEdit=!!eid,ex=isEdit?expenses.find(e=>e.id===eid):null;window._as={isEdit,eid,cat:ex?ex.cat:'food',payer:ex?ex.payer:(currentUser||names()[0]),split:ex?[...ex.split]:[...names()],d:ex?ex.d:'',a:ex?ex.a:''};renderAddModal()}
-function renderAddModal(){const s=window._as,ms=document.getElementById('ms');const catChips=Object.entries(CATS).map(([k,v])=>`<div class="cc${s.cat===k?' on':''}" data-c="${k}">${v.i} ${v.l}</div>`).join('');const pn=s.payer;const isMe=pn===currentUser;const sc=s.split.length;const allIn=sc===names().length;ms.innerHTML=`<h2>${s.isEdit?'Aanpassen':'Nieuwe uitgave'}<span onclick="closeMo()">Laat maar</span></h2><div class="fg fg-big"><input type="number" id="mi-a" placeholder="0.00" step="0.01" min="0" value="${s.a}" inputmode="decimal"></div><div class="fg"><input type="text" id="mi-d" placeholder="Waarvoor? bv. Pasta aan het meer" value="${s.d}"></div><div class="fg"><label>Categorie</label><div class="cat-row" id="mi-cat">${catChips}</div></div><div class="payer-row" id="mi-payer"><div class="bav" style="background:${pcol(pn)}20;color:${pcol(pn)};width:24px;height:24px;font-size:9px">${ini(pn)}</div>${pn}${isMe?'<span class="you-tag">jij</span>':''}<span style="margin-left:auto;font-size:11px;color:var(--tx2)">wijzig \u203A</span></div><div class="split-row" id="mi-split"><span>Splitten met</span><span class="sr-val">${allIn?'Iedereen ('+sc+')':sc+' personen'} \u203A</span></div>${s.isEdit?'<div class="btn-row"><button class="btn-del" onclick="delExp('+s.eid+')">Weg ermee</button><button class="save-btn" style="flex:1" onclick="saveExp()">Save</button></div>':'<button class="save-btn" onclick="saveExp()">Save</button>'}`;ms.querySelectorAll('.cc').forEach(c=>c.onclick=()=>{ms.querySelectorAll('.cc').forEach(x=>x.classList.remove('on'));c.classList.add('on');s.cat=c.dataset.c});document.getElementById('mi-payer').onclick=()=>showPayerPicker();document.getElementById('mi-split').onclick=()=>showSplitPicker();document.getElementById('mo').classList.add('open');setTimeout(()=>document.getElementById('mi-a').focus(),150)}
-function showPayerPicker(){const s=window._as,ms=document.getElementById('ms');ms.innerHTML=`<h2>Wie heeft gelapt?<span onclick="renderAddModal()">Terug</span></h2><div class="sp-list">${names().map(n=>`<div class="sp${s.payer===n?' on':''}" data-p="${n}"><span class="chk">\u2713</span><div class="bav" style="background:${pcol(n)}20;color:${pcol(n)};width:24px;height:24px;font-size:9px">${ini(n)}</div>${n}${n===currentUser?'<span class="you-tag" style="margin-left:4px">jij</span>':''}</div>`).join('')}</div>`;ms.querySelectorAll('.sp').forEach(c=>c.onclick=()=>{s.payer=c.dataset.p;renderAddModal()})}
-function showSplitPicker(){const s=window._as,ms=document.getElementById('ms');ms.innerHTML=`<h2>Splitten met<span onclick="renderAddModal()">Done</span></h2><div style="margin-bottom:8px"><span class="allbtn" id="tog-all">Iedereen aan/uit</span></div><div class="sp-list" id="mi-sp">${names().map(n=>{const on=s.split.includes(n);return`<div class="sp${on?' on':''}" data-p="${n}"><span class="chk">\u2713</span><div class="bav" style="background:${pcol(n)}20;color:${pcol(n)};width:24px;height:24px;font-size:9px">${ini(n)}</div>${n}</div>`}).join('')}</div>`;ms.querySelectorAll('.sp').forEach(c=>c.onclick=()=>{c.classList.toggle('on');const p=c.dataset.p;if(c.classList.contains('on')){if(!s.split.includes(p))s.split.push(p)}else{s.split=s.split.filter(x=>x!==p)}});document.getElementById('tog-all').onclick=()=>{const all=ms.querySelectorAll('.sp');const ao=[...all].every(c=>c.classList.contains('on'));all.forEach(c=>ao?c.classList.remove('on'):c.classList.add('on'));s.split=ao?[]:[...names()]}}
-function saveExp(){const s=window._as;const d=document.getElementById('mi-d').value.trim();const a=parseFloat(document.getElementById('mi-a').value);if(!d||isNaN(a)||a<=0){toast('Vul wat in broer!');return}s.d=d;s.a=a;if(!s.split.length){toast('Kies minstens 1 broeder!');return}if(s.isEdit){const e=expenses.find(x=>x.id===s.eid);e.d=s.d;e.a=s.a;e.cat=s.cat;e.payer=s.payer;e.split=s.split}else{expenses.push({id:nid++,d:s.d,a:s.a,cat:s.cat,payer:s.payer,split:s.split,dt:new Date().toISOString().slice(0,10)})}closeMo();saveData();render();toast(s.isEdit?'Updated swa!':'Erin gedropt!')}
-function delExp(id){expenses=expenses.filter(e=>e.id!==id);closeMo();document.getElementById('dtl').classList.remove('open');saveData();render();toast('Weg is ie!')}
-function showDtl(id){const e=expenses.find(x=>x.id===id);if(!e)return;const c=CATS[e.cat]||CATS.other;const sh=(e.a/e.split.length).toFixed(2);const dtl=document.getElementById('dtl');dtl.innerHTML=`<div class="dbk" onclick="document.getElementById('dtl').classList.remove('open')">\u2190 Terug</div><div style="margin-bottom:12px"><div class="eic" style="background:${c.bg};color:${c.c};width:40px;height:40px;font-size:18px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center">${c.i}</div><h3 style="font-size:18px;font-weight:600;margin-top:8px">${e.d}</h3><p style="font-size:12px;color:var(--tx2);margin-top:2px">${c.l} \xB7 ${e.dt}</p></div><div class="dr"><span class="dl">Bedrag</span><span style="font-weight:600">\u20AC${e.a.toFixed(2)}</span></div><div class="dr"><span class="dl">Gelapt door</span><span>${e.payer}</span></div><div class="dr"><span class="dl">Gesplit met</span><span>${e.split.length} personen</span></div><div class="dr"><span class="dl">Per hoofd</span><span>\u20AC${sh}</span></div><div style="margin-top:10px"><div style="font-size:11px;color:var(--tx2);margin-bottom:6px">De squad</div><div style="display:flex;flex-wrap:wrap;gap:4px">${e.split.map(p=>`<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:3px 8px;border-radius:12px;background:var(--bg2)"><span style="width:16px;height:16px;border-radius:50%;background:${pcol(p)}20;color:${pcol(p)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:600">${ini(p)}</span>${p}</span>`).join('')}</div></div><div class="btn-row" style="margin-top:16px"><button class="btn-del" onclick="delExp(${e.id})">Weg ermee</button><button class="save-btn" style="flex:1" onclick="document.getElementById('dtl').classList.remove('open');openAdd(${e.id})">Aanpassen</button></div>`;dtl.classList.add('open')}
+function openAdd(eid){
+  const isEdit=!!eid,ex=isEdit?expenses.find(e=>e.id===eid):null;
+  window._as={isEdit,eid,
+    cat:ex?ex.cat:'food',
+    payer:ex?ex.payer:(currentUser||names()[0]),
+    split:ex?[...ex.split]:[...names()],
+    d:ex?ex.d:'',
+    a:ex?ex.a:'',
+    mode:ex&&ex.splitMode==='exact'?'exact':'equal',
+    amounts:ex&&ex.splitAmounts?{...ex.splitAmounts}:{}
+  };
+  renderAddForm();
+}
+function closeAdd(){document.getElementById('add-ov').classList.remove('open')}
+function renderAddForm(){
+  const s=window._as,ov=document.getElementById('add-ov');
+  const cat=CATS[s.cat]||CATS.food;
+  const catChips=Object.entries(CATS).map(([k,v])=>`<div class="cc${s.cat===k?' on':''}" data-c="${k}">${v.i} ${v.l}</div>`).join('');
+  const avatars=names().map((n,i)=>{const on=s.payer===n;const me=n===currentUser;return`<div class="av-item" data-p="${n}"><div class="av-circ ${on?'on':'off'}" style="${on?'':`background:${PCOL[i%PCOL.length]}12;color:${PCOL[i%PCOL.length]}`}">${ini(n)}</div><div class="av-nm${on?' on':''}">${n}${me?' (jij)':''}</div></div>`}).join('');
+  const totalAmt=parseFloat(s.a)||0;
+  let splitHtml='';
+  if(s.mode==='equal'){
+    const chips=names().map(n=>{const on=s.split.includes(n);return`<div class="sp${on?' on':''}" data-p="${n}"><span class="chk">\u2713</span>${n}</div>`}).join('');
+    const pp=s.split.length>0&&totalAmt>0?(totalAmt/s.split.length).toFixed(2):'0.00';
+    splitHtml=`<div style="margin-bottom:8px"><span class="allbtn" id="tog-all">Iedereen aan/uit</span></div><div class="sp-list" id="sp-chips">${chips}</div>${totalAmt>0&&s.split.length>0?`<div class="eq-hint">\u20AC${pp} per persoon</div>`:''}`;
+  } else {
+    const rows=names().map((n,i)=>{const val=s.amounts[n]||'';return`<div class="exact-row"><div class="bav" style="background:${PCOL[i%PCOL.length]}20;color:${PCOL[i%PCOL.length]};width:28px;height:28px;font-size:10px">${ini(n)}</div><div class="exact-name">${n}</div><input class="exact-input" data-p="${n}" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" value="${val}"></div>`}).join('');
+    const filled=Object.values(s.amounts).reduce((sum,v)=>sum+(parseFloat(v)||0),0);
+    const diff=totalAmt-filled;
+    const ok=Math.abs(diff)<0.01&&totalAmt>0;
+    splitHtml=`${rows}<div class="total-bar"><span class="tl">Totaal ingevuld</span><span class="tv ${ok?'ok':'err'}">\u20AC${filled.toFixed(2)} / \u20AC${totalAmt.toFixed(2)}${ok?' \u2713':''}</span></div>${!ok&&totalAmt>0?`<div class="val-msg">${diff>0?'Nog \u20AC'+diff.toFixed(2)+' te verdelen':'\u20AC'+Math.abs(diff).toFixed(2)+' teveel!'}</div>`:''}`;
+  }
+  const canSave=s.mode==='equal'||(()=>{const filled=Object.values(s.amounts).reduce((sum,v)=>sum+(parseFloat(v)||0),0);return Math.abs(totalAmt-filled)<0.01&&totalAmt>0})();
+  ov.innerHTML=`<div class="add-topbar"><div class="atb-back" onclick="closeAdd()">\u2190</div><div class="atb-title">${s.isEdit?'Aanpassen':'Nieuwe uitgave'}</div><div style="width:28px"></div></div>
+<div class="add-body">
+<div class="add-sec"><div class="as-label">Waarvoor?</div><div class="add-title-row"><input type="text" id="ai-d" placeholder="bv. Pasta aan het meer" value="${s.d}"><div class="add-title-icon" style="background:${cat.bg};color:${cat.c}">${cat.i}</div></div></div>
+<div class="add-sec"><div class="as-label">Bedrag</div><div class="add-amt"><input type="number" id="ai-a" placeholder="0.00" step="0.01" min="0" value="${s.a}" inputmode="decimal"></div></div>
+<div class="add-sec"><div class="as-label">Categorie</div><div class="add-cat-row" id="ai-cat">${catChips}</div></div>
+<div class="add-sec"><div class="as-label">Wie heeft gelapt?</div><div class="add-avatars" id="ai-payer">${avatars}</div></div>
+<div class="add-sec"><div class="as-label">Splitten</div><div class="mode-toggle"><button class="mode-btn${s.mode==='equal'?' on':''}" data-m="equal">Gelijk</button><button class="mode-btn${s.mode==='exact'?' on':''}" data-m="exact">Exact</button></div><div id="split-content">${splitHtml}</div></div>
+<div class="add-sec"><div class="as-label">Notitie (optioneel)</div><input type="text" id="ai-note" placeholder="Voeg een notitie toe..." value="${s.note||''}" style="border:none;background:none;color:var(--tx);font-size:13px;outline:none;font-family:var(--f);width:100%;padding:0"></div>
+</div>
+<div class="add-save">${s.isEdit?`<div class="btn-row"><button class="btn-del" onclick="delExp(${s.eid})">Weg ermee</button><button class="save-btn${canSave?'':' disabled'}" style="flex:1" onclick="saveExp()">Save</button></div>`:`<button class="save-btn${canSave?'':' disabled'}" onclick="saveExp()">Save</button>`}</div>`;
+  // Category
+  ov.querySelectorAll('.cc').forEach(c=>c.onclick=()=>{s.cat=c.dataset.c;renderAddForm()});
+  // Payer avatars
+  ov.querySelectorAll('.av-item').forEach(a=>a.onclick=()=>{s.payer=a.dataset.p;renderAddForm()});
+  // Mode toggle
+  ov.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{s.mode=b.dataset.m;if(s.mode==='exact'&&Object.keys(s.amounts).length===0){names().forEach(n=>s.amounts[n]='')}renderAddForm()});
+  // Equal split chips
+  if(s.mode==='equal'){
+    ov.querySelectorAll('#sp-chips .sp').forEach(c=>c.onclick=()=>{c.classList.toggle('on');const p=c.dataset.p;if(c.classList.contains('on')){if(!s.split.includes(p))s.split.push(p)}else{s.split=s.split.filter(x=>x!==p)}renderAddForm()});
+    const tog=document.getElementById('tog-all');if(tog)tog.onclick=()=>{const ao=s.split.length===names().length;s.split=ao?[]:[...names()];renderAddForm()}
+  }
+  // Exact inputs
+  if(s.mode==='exact'){
+    ov.querySelectorAll('.exact-input').forEach(inp=>{
+      inp.oninput=()=>{s.amounts[inp.dataset.p]=inp.value;updateExactTotal()};
+      inp.onfocus=()=>{if(inp.value==='0'||inp.value==='')inp.value=''}
+    })
+  }
+  // Amount change updates per-person hint
+  const amtInp=document.getElementById('ai-a');
+  if(amtInp)amtInp.oninput=()=>{s.a=amtInp.value;renderAddForm();amtInp.focus()}
+  ov.classList.add('open');
+}
+function updateExactTotal(){
+  const s=window._as;
+  const totalAmt=parseFloat(s.a)||0;
+  const filled=Object.values(s.amounts).reduce((sum,v)=>sum+(parseFloat(v)||0),0);
+  const diff=totalAmt-filled;const ok=Math.abs(diff)<0.01&&totalAmt>0;
+  const tb=document.querySelector('.total-bar');
+  if(tb)tb.innerHTML=`<span class="tl">Totaal ingevuld</span><span class="tv ${ok?'ok':'err'}">\u20AC${filled.toFixed(2)} / \u20AC${totalAmt.toFixed(2)}${ok?' \u2713':''}</span>`;
+  const vm=document.querySelector('.val-msg');
+  if(vm){if(!ok&&totalAmt>0)vm.innerHTML=diff>0?'Nog \u20AC'+diff.toFixed(2)+' te verdelen':'\u20AC'+Math.abs(diff).toFixed(2)+' teveel!';else vm.innerHTML=''}
+  const btn=document.querySelector('.add-save .save-btn');
+  if(btn){if(ok||s.mode==='equal')btn.classList.remove('disabled');else btn.classList.add('disabled')}
+}
+function saveExp(){
+  const s=window._as;
+  const d=document.getElementById('ai-d').value.trim();
+  const a=parseFloat(document.getElementById('ai-a').value);
+  if(!d||isNaN(a)||a<=0){toast('Vul wat in broer!');return}
+  s.d=d;s.a=a;
+  if(s.mode==='equal'){
+    if(!s.split.length){toast('Kies minstens 1 broeder!');return}
+  } else {
+    const filled=Object.values(s.amounts).reduce((sum,v)=>sum+(parseFloat(v)||0),0);
+    if(Math.abs(a-filled)>=0.01){toast('Bedragen kloppen niet!');return}
+    s.split=names().filter(n=>parseFloat(s.amounts[n])>0);
+  }
+  if(s.isEdit){
+    const e=expenses.find(x=>x.id===s.eid);
+    e.d=s.d;e.a=s.a;e.cat=s.cat;e.payer=s.payer;e.split=s.split;
+    e.splitMode=s.mode;e.splitAmounts=s.mode==='exact'?{...s.amounts}:null;
+  } else {
+    expenses.push({id:nid++,d:s.d,a:s.a,cat:s.cat,payer:s.payer,split:s.split,
+      splitMode:s.mode,splitAmounts:s.mode==='exact'?{...s.amounts}:null,
+      dt:new Date().toISOString().slice(0,10)});
+  }
+  closeAdd();saveData();render();toast(s.isEdit?'Updated swa!':'Erin gedropt!')
+}
+function delExp(id){expenses=expenses.filter(e=>e.id!==id);closeAdd();closeMo();document.getElementById('dtl').classList.remove('open');saveData();render();toast('Weg is ie!')}
+function showDtl(id){const e=expenses.find(x=>x.id===id);if(!e)return;const c=CATS[e.cat]||CATS.other;const isExact=e.splitMode==='exact'&&e.splitAmounts;const sh=isExact?null:(e.a/e.split.length).toFixed(2);
+  let splitInfo='';
+  if(isExact){splitInfo=e.split.map(p=>`<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:3px 8px;border-radius:12px;background:var(--bg2)"><span style="width:16px;height:16px;border-radius:50%;background:${pcol(p)}20;color:${pcol(p)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:600">${ini(p)}</span>${p}: \u20AC${parseFloat(e.splitAmounts[p]||0).toFixed(2)}</span>`).join('')}
+  else{splitInfo=e.split.map(p=>`<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:3px 8px;border-radius:12px;background:var(--bg2)"><span style="width:16px;height:16px;border-radius:50%;background:${pcol(p)}20;color:${pcol(p)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:600">${ini(p)}</span>${p}</span>`).join('')}
+  const dtl=document.getElementById('dtl');dtl.innerHTML=`<div class="dbk" onclick="document.getElementById('dtl').classList.remove('open')">\u2190 Terug</div><div style="margin-bottom:12px"><div class="eic" style="background:${c.bg};color:${c.c};width:40px;height:40px;font-size:18px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center">${c.i}</div><h3 style="font-size:18px;font-weight:600;margin-top:8px">${e.d}</h3><p style="font-size:12px;color:var(--tx2);margin-top:2px">${c.l} \xB7 ${e.dt}</p></div><div class="dr"><span class="dl">Bedrag</span><span style="font-weight:600">\u20AC${e.a.toFixed(2)}</span></div><div class="dr"><span class="dl">Gelapt door</span><span>${e.payer}</span></div><div class="dr"><span class="dl">Split</span><span>${isExact?'Exact bedrag':'Gelijk verdeeld'}</span></div>${!isExact?`<div class="dr"><span class="dl">Per hoofd</span><span>\u20AC${sh}</span></div>`:''}<div style="margin-top:10px"><div style="font-size:11px;color:var(--tx2);margin-bottom:6px">${isExact?'Exacte verdeling':'De squad'}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${splitInfo}</div></div><div class="btn-row" style="margin-top:16px"><button class="btn-del" onclick="delExp(${e.id})">Weg ermee</button><button class="save-btn" style="flex:1" onclick="document.getElementById('dtl').classList.remove('open');openAdd(${e.id})">Aanpassen</button></div>`;dtl.classList.add('open')}
 function showChart(){const ov=document.getElementById('chart-ov');const data={};names().forEach(n=>{data[n]={};Object.keys(CATS).forEach(k=>data[n][k]=0)});expenses.forEach(e=>{if(data[e.payer]&&CATS[e.cat])data[e.payer][e.cat]+=e.a});const sorted=names().map(n=>({n,cats:data[n],total:Object.values(data[n]).reduce((s,v)=>s+v,0)})).sort((a,b)=>b.total-a.total);const mx=Math.max(...sorted.map(s=>s.total),1);const uc=Object.keys(CATS).filter(k=>expenses.some(e=>e.cat===k));const legend=uc.map(k=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${CATS[k].c}"></span>${CATS[k].i} ${CATS[k].l}</span>`).join(' ');const bars=sorted.filter(p=>p.total>0.01).map(p=>{const b=uc.map(k=>{const v=p.cats[k];if(v<0.01)return'';const pct=v/mx*100;const lb=pct>8?`<span>\u20AC${Math.round(v)}</span>`:'';return`<div class="chart-bar" style="width:${pct}%;background:${CATS[k].c}">${lb}</div>`}).join('');return`<div class="chart-person"><div class="chart-name"><div class="bav" style="background:${pcol(p.n)}20;color:${pcol(p.n)};width:22px;height:22px;font-size:9px">${ini(p.n)}</div>${p.n}<span class="ct">\u20AC${Math.round(p.total).toLocaleString('nl-BE')}</span></div><div class="chart-bars">${b}</div></div>`}).join('');ov.innerHTML=`<div class="dbk" onclick="document.getElementById('chart-ov').classList.remove('open')">\u2190 Terug</div><h3 style="font-size:18px;font-weight:600;margin-bottom:4px">Wie lapt het meest?</h3><p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Per persoon per categorie</p><div style="margin-bottom:12px">${legend}</div>${bars}`;ov.classList.add('open');fireConfetti()}
 function fireConfetti(){const cv=document.createElement('canvas');cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:999;pointer-events:none';cv.width=window.innerWidth;cv.height=window.innerHeight;document.body.appendChild(cv);const ctx=cv.getContext('2d'),cols=['#1D9E75','#534AB7','#D85A30','#185FA5','#D4537E','#639922','#BA7517','#E24B4A','#FAC775','#5DCAA5'],pcs=[];for(let i=0;i<120;i++){const sd=Math.random()<.5?0:1;pcs.push({x:sd?cv.width+10:-10,y:cv.height*.3+Math.random()*cv.height*.2,vx:(sd?-1:1)*(4+Math.random()*8),vy:-(6+Math.random()*10),g:.25+Math.random()*.15,w:6+Math.random()*6,h:4+Math.random()*4,r:Math.random()*360,rv:(Math.random()-.5)*12,c:cols[Math.floor(Math.random()*cols.length)],a:1,dl:Math.random()*300})}const st=performance.now();function fr(now){ctx.clearRect(0,0,cv.width,cv.height);const el=now-st;let alive=false;pcs.forEach(p=>{if(el<p.dl){alive=true;return}p.x+=p.vx;p.vy+=p.g;p.y+=p.vy;p.r+=p.rv;p.vx*=.99;if(el-p.dl>1500)p.a=Math.max(0,p.a-.03);if(p.a<=0)return;alive=true;ctx.save();ctx.globalAlpha=p.a;ctx.translate(p.x,p.y);ctx.rotate(p.r*Math.PI/180);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore()});if(alive)requestAnimationFrame(fr);else cv.remove()}requestAnimationFrame(fr)}
 document.getElementById('add-bar').onclick=()=>openAdd();
