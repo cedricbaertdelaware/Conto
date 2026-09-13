@@ -242,7 +242,7 @@ let expenses=[],payments=[],nid=1,fbReady=false,filt='all',curTab='exp';
 let ratings={},photos={};
 function saveData(){dbP.set(people);dbE.set(expenses);dbN.set(nid);dbPay.set(payments)}
 function savePay(){dbPay.set(payments)}
-function saveRatings(){dbRat.set(ratings)}
+function saveRatings(){if(currentUser)dbRat.child(currentUser).set(ratings[currentUser]||{})}
 function savePhotos(){dbPhotos.set(photos)}
 function fixArr(v){if(!v)return[];return Array.isArray(v)?v:Object.values(v)}
 function fixPeople(v){if(!v)return people;const arr=Array.isArray(v)?v:Object.values(v);const f=arr.filter(p=>p&&p.n);return f.length?f:people}
@@ -265,6 +265,20 @@ function names(){return people.map(p=>p.n)}
 function getMyBal(){if(!currentUser)return 0;const b=calcBal();return b[currentUser]||0}
 let _tt=null;function toast(t){const e=document.getElementById('toast');if(_tt)clearTimeout(_tt);e.classList.remove('show');void e.offsetWidth;e.textContent=t;e.classList.add('show');_tt=setTimeout(()=>{e.classList.remove('show');_tt=null},2000)}
 function initApp(){
+  // One-time cleanup: remove NUTella
+  const nutName=people.find(p=>p.n&&p.n.toLowerCase().includes('nutella'));
+  if(nutName){
+    const nn=nutName.n;
+    console.log('Cleanup: removing',nn);
+    // Remove from people
+    people=people.filter(p=>p.n!==nn);
+    // Remove expenses where NUTella was the payer
+    expenses=expenses.filter(e=>e.payer!==nn);
+    // Keep her in split arrays — her share just disappears
+    // Save cleanup to Firebase
+    saveData();
+    console.log('Cleanup done');
+  }
   // Validate currentUser exists in people list
   if(currentUser && !people.find(p=>p.n===currentUser)){
     currentUser=null;saveMe();
@@ -276,8 +290,7 @@ function pickMe(i){currentUser=people[i].n;saveMe();document.getElementById('onb
 function startApp(){document.getElementById('onboard').classList.add('hide');document.getElementById('app').style.display='';render()}
 function render(){renderNav();renderStats();document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));document.getElementById('p-'+curTab).classList.add('on');document.getElementById('hdr-av').textContent=currentUser?ini(currentUser):'?';if(curTab==='exp'){renderCats();renderList()}else if(curTab==='bal')renderBal();else if(curTab==='set'){renderSettle();renderIbans();renderPaylog()}else if(curTab==='ppl')renderPeople()}
 function renderNav(){const tabs=[['exp','\u{1F4B0}','Uitgaven'],['bal','\u2696\uFE0F','Wie is blut'],['set','\u{1F4B8}','Time to pay'],['ppl','\u{1F465}','De squad']];document.getElementById('bnav').innerHTML=tabs.map(([k,ic,l])=>`<button class="bnav-item${curTab===k?' on':''}" data-t="${k}"><span class="ni">${ic}</span>${l}</button>`).join('');document.querySelectorAll('.bnav-item').forEach(b=>b.onclick=()=>{curTab=b.dataset.t;render()})}
-function renderStats(){const tot=expenses.reduce((s,e)=>s+e.a,0);const mb=getMyBal();const mc=mb>=0?'pos':'neg';const ml=currentUser?(mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'):'Kies wie je bent';const mv=currentUser?`${mb>=0?'+':''}\u20AC${Math.abs(Math.round(mb)).toLocaleString('nl-BE')}`:'\u2014';document.getElementById('stats2').innerHTML=`<div class="st2"><div class="sl">Totaal schade</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div><div class="st2 me" id="st-me"><div class="sl">${ml}</div><div class="sv ${mc}">${mv}</div></div>`;document.getElementById('st-me').onclick=()=>handleStatTap()}
-let _staps=0,_stimer=null;function handleStatTap(){if(!currentUser){curTab='ppl';render();return}_staps++;if(_stimer)clearTimeout(_stimer);_stimer=setTimeout(()=>{_staps=0},800);if(_staps>=5){_staps=0;showChart()}}
+function renderStats(){const tot=expenses.reduce((s,e)=>s+e.a,0);const mb=getMyBal();const mc=mb>=0?'pos':'neg';const ml=currentUser?(mb>=0?'Broers zijn jou schuldig':'Jij moet nog lappen'):'Kies wie je bent';const mv=currentUser?`${mb>=0?'+':''}\u20AC${Math.abs(Math.round(mb)).toLocaleString('nl-BE')}`:'\u2014';document.getElementById('stats2').innerHTML=`<div class="st2"><div class="sl">Totaal schade</div><div class="sv">\u20AC${Math.round(tot).toLocaleString('nl-BE')}</div></div><div class="st2 me" id="st-me"><div class="sl">${ml}</div><div class="sv ${mc}">${mv}</div></div>`;document.getElementById('st-me').onclick=()=>{if(!currentUser){curTab='ppl';render()}}}
 function renderCats(){let h=`<div class="cpill${filt==='all'?' on':''}" data-c="all">Alles</div>`;Object.entries(CATS).forEach(([k,v])=>{if(expenses.some(e=>e.cat===k))h+=`<div class="cpill${filt===k?' on':''}" data-c="${k}">${v.i} ${v.l}</div>`});const el=document.getElementById('cpills');el.innerHTML=h;el.querySelectorAll('.cpill').forEach(c=>c.onclick=()=>{filt=c.dataset.c;render()})}
 function renderList(){const f=filt==='all'?expenses:expenses.filter(e=>e.cat===filt);const el=document.getElementById('elist');if(!f.length){el.innerHTML=`<div class="empty"><p>Niks hier broer. Drop je eerste uitgave!</p></div>`;return}const sorted=[...f].sort((a,b)=>(b.dt||'').localeCompare(a.dt||''));const groups={};sorted.forEach(e=>{const d=e.dt||'?';if(!groups[d])groups[d]=[];groups[d].push(e)});const today=new Date().toISOString().slice(0,10),yest=new Date(Date.now()-864e5).toISOString().slice(0,10);let html='';Object.entries(groups).forEach(([d,items])=>{let label=d===today?'Vandaag':d===yest?'Gisteren':d;html+=`<div class="day-lbl">${label}</div>`;items.forEach(e=>{const c=CATS[e.cat]||CATS.other;const isEx=e.splitMode==='exact';html+=`<div class="ei" data-id="${e.id}"><div class="eic" style="background:${c.bg};color:${c.c}">${c.i}</div><div class="einfo"><div class="et">${e.d}</div><div class="em">${e.payer} \xB7 ${e.split.length}p${isEx?' \xB7 exact':''}</div></div><div class="eamt"><div class="ev">\u20AC${e.a.toFixed(2)}</div></div></div>`})});el.innerHTML=html;el.querySelectorAll('.ei').forEach(i=>i.onclick=()=>showDtl(+i.dataset.id))}
 function calcBal(){const b={};names().forEach(n=>b[n]=0);expenses.forEach(e=>{b[e.payer]=(b[e.payer]||0)+e.a;if(e.splitMode==='exact'&&e.splitAmounts){Object.entries(e.splitAmounts).forEach(([p,v])=>{if(b[p]!==undefined)b[p]-=(parseFloat(v)||0)})}else{const sh=e.a/e.split.length;e.split.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})}});payments.forEach(pm=>{if(b[pm.f]!==undefined)b[pm.f]+=pm.a;if(b[pm.t]!==undefined)b[pm.t]-=pm.a});return b}
