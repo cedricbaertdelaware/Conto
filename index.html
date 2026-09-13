@@ -493,9 +493,11 @@ function renderHottie(){
     star.onclick=(e)=>{
       e.stopPropagation();
       const hIdx=parseInt(star.dataset.h),cat=star.dataset.c,score=parseInt(star.dataset.s);
+      const current=(ratings[currentUser]&&ratings[currentUser][hIdx]&&ratings[currentUser][hIdx][cat])||0;
       if(!ratings[currentUser])ratings[currentUser]={};
       if(!ratings[currentUser][hIdx])ratings[currentUser][hIdx]={};
-      ratings[currentUser][hIdx][cat]=score;
+      if(current===score){delete ratings[currentUser][hIdx][cat]}
+      else{ratings[currentUser][hIdx][cat]=score}
       saveRatings();
       renderHottie();
     }
