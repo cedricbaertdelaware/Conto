@@ -180,8 +180,14 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 .hottie-card{background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:10px;position:relative}
 .hottie-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .hottie-photo{width:60px;height:60px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;border:1.5px dashed var(--brd2);flex-shrink:0}
+.hottie-photo.has-img{border-style:solid;border-color:var(--brd)}
 .hottie-photo img{width:100%;height:100%;object-fit:cover}
 .hottie-photo .hp-placeholder{font-size:10px;color:var(--tx3);text-align:center}
+.hottie-upload{width:28px;height:28px;border-radius:8px;background:var(--bg);border:1px solid var(--brd2);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;flex-shrink:0;-webkit-user-select:none}
+.hottie-upload:active{background:var(--ac-l)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;display:none;align-items:center;justify-content:center;cursor:pointer;padding:20px}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:12px;object-fit:contain}
 .hottie-name{font-size:16px;font-weight:600}
 .hottie-avg{font-size:22px;font-weight:600;color:var(--ac)}
 .hottie-cat{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--brd)}
@@ -215,6 +221,7 @@ body{font-family:var(--f);color:var(--tx);background:var(--bg);-webkit-tap-highl
 <div class="dtl" id="dtl"></div>
 <div class="chart-ov" id="chart-ov"></div>
 <div class="hottie-ov" id="hottie-ov"></div>
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"></div>
 <div class="toast" id="toast"></div>
 <script>
 const CATS={food:{l:'Fret',i:'\u{1F35D}',c:'#D85A30',bg:'#FAECE7'},drinks:{l:'Drankie',i:'\u{1F377}',c:'#534AB7',bg:'#EEEDFE'},transport:{l:'Vroem',i:'\u{1F697}',c:'#185FA5',bg:'#E6F1FB'},accom:{l:'Slapen',i:'\u{1F3E0}',c:'#D4537E',bg:'#FBEAF0'},activities:{l:'Activiteit',i:'\u26F5',c:'#639922',bg:'#EAF3DE'},other:{l:'Random',i:'\u{1F4E6}',c:'#888780',bg:'#F1EFE8'}};
@@ -472,7 +479,7 @@ function renderHottie(){
   const cards=sorted.map((h,rank)=>{
     const photo=photos[h.idx];
     const myScores=(ratings[currentUser]&&ratings[currentUser][h.idx])||{};
-    const photoHtml=photo?`<img src="${photo}" alt="">`:`<div class="hp-placeholder">+ Foto</div>`;
+    const photoHtml=photo?`<img src="${photo}" alt="">`:`<div class="hp-placeholder">Geen foto</div>`;
     const avgDisplay=h.avg>0?h.avg.toFixed(1):'\u2014';
 
     const catsHtml=HCATS.map(cat=>{
@@ -483,7 +490,7 @@ function renderHottie(){
       return`<div class="hottie-cat"><span class="hc-label">${cat}</span><div class="hottie-stars">${stars}</div><span class="hc-avg">${catAvgTxt}</span></div>`;
     }).join('');
 
-    return`<div class="hottie-card"><div class="hottie-rank">#${rank+1}</div><div class="hottie-top"><div class="hottie-photo" data-upload="${h.idx}">${photoHtml}</div><div><div class="hottie-name">${h.name}</div><div class="hottie-avg">${avgDisplay}</div></div></div>${catsHtml}</div>`;
+    return`<div class="hottie-card"><div class="hottie-rank">#${rank+1}</div><div class="hottie-top"><div class="hottie-photo${photo?' has-img':''}" data-view="${h.idx}">${photoHtml}</div><div class="hottie-upload" data-upload="${h.idx}">\u{1F4F7}</div><div style="flex:1"><div class="hottie-name">${h.name}</div><div class="hottie-avg">${avgDisplay}</div></div></div>${catsHtml}</div>`;
   }).join('');
 
   ov.innerHTML=`<div class="add-topbar"><div class="atb-back" onclick="closeHottie()">\u2190</div><div class="atb-title">Hottie Ranker \u{1F525}</div><div style="width:28px"></div></div><div class="hottie-body">${cards}</div>`;
@@ -502,9 +509,20 @@ function renderHottie(){
       renderHottie();
     }
   });
-  // Photo upload delegation
+  // Photo view (lightbox)
   ov.querySelectorAll('.hottie-photo').forEach(ph=>{
-    ph.onclick=()=>uploadHottiePhoto(parseInt(ph.dataset.upload));
+    ph.onclick=()=>{
+      const idx=parseInt(ph.dataset.view);
+      const photo=photos[idx];
+      if(!photo)return;
+      const lb=document.getElementById('lightbox');
+      lb.innerHTML=`<img src="${photo}" alt="">`;
+      lb.classList.add('open');
+    }
+  });
+  // Photo upload button
+  ov.querySelectorAll('.hottie-upload').forEach(btn=>{
+    btn.onclick=(e)=>{e.stopPropagation();uploadHottiePhoto(parseInt(btn.dataset.upload))}
   });
 }
 function uploadHottiePhoto(idx){
